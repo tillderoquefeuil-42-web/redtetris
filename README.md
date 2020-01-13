@@ -3,14 +3,9 @@
 The aim of this project is to develop a multiplayer tetris game in Full Stack Javascript
 
 ## summary
-* [techno]()
 * [the game]()
+* [project constraint]()
 * [references]()
-
-## techno
-- Nodejs
-- React
-- Redux
 
 ## the game
 1. single player rules
@@ -30,8 +25,9 @@ The aim of this project is to develop a multiplayer tetris game in Full Stack Ja
     - each player owns his board
     - if a player removes a line, all others have a blocked line from above in malus
     - you can see every players boards (only the highest block of each column)
+    - first player hosts the room (right to restart)
 
-3. tetriminos
+3. tetriminos \
     7 pieces : \
     **⠏ | ⠹ | ⠞ | ⠳ | ⠛ | ⡇ | ⠺**
 
@@ -41,6 +37,19 @@ The aim of this project is to develop a multiplayer tetris game in Full Stack Ja
     - ↓ : increase falling speed
     - spacebar : move tetriminos to the bottom instantly
 
+## project constraint
+- techno
+    - Nodejs
+    - React
+    - Redux
+    - socket.io
+- back/front
+    - start from [boilerplate](https://github.com/redpelicans/red_tetris_boilerplate)
+    - index.html and bundle.js are the only files required by the client
+    - hash based url (*http://<server_name_or_ip>:<port>/#<room>[<player_name>]*)
+
 ## references
 - [wikipedia - tetris](https://en.wikipedia.org/wiki/Tetris#Game_pieces)
 - [interaction-design - tetris](https://www.interaction-design.org/literature/article/a-game-explained-an-example-of-a-single-game-and-how-it-meets-the-rules-of-fun)
+- [itnext - hash based url](https://itnext.io/why-using-hash-based-urls-in-your-react-spa-will-save-you-more-time-than-you-think-a21e2c560879)
+
