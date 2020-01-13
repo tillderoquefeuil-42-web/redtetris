@@ -2,12 +2,12 @@
 
 The aim of this project is to develop a multiplayer tetris game in Full Stack Javascript
 
-## summary
-* [the game]()
-* [project constraint]()
-* [references]()
+## table of contents
+* [the game](#game)
+* [project constraints](#constraints)
+* [references](#references)
 
-## the game
+## the game <a id="game"></a>
 1. single player rules
     - goal : \
         Bring down blocks from the top of the screen \
@@ -37,7 +37,7 @@ The aim of this project is to develop a multiplayer tetris game in Full Stack Ja
     - ↓ : increase falling speed
     - spacebar : move tetriminos to the bottom instantly
 
-## project constraint
+## project constraints <a id="constraints"></a>
 - techno
     - Nodejs
     - React
@@ -48,7 +48,7 @@ The aim of this project is to develop a multiplayer tetris game in Full Stack Ja
     - index.html and bundle.js are the only files required by the client
     - hash based url (*http://<server_name_or_ip>:<port>/#<room>[<player_name>]*)
 
-## references
+## references <a id="references"></a>
 - [wikipedia - tetris](https://en.wikipedia.org/wiki/Tetris#Game_pieces)
 - [interaction-design - tetris](https://www.interaction-design.org/literature/article/a-game-explained-an-example-of-a-single-game-and-how-it-meets-the-rules-of-fun)
 - [itnext - hash based url](https://itnext.io/why-using-hash-based-urls-in-your-react-spa-will-save-you-more-time-than-you-think-a21e2c560879)
