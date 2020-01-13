@@ -14,16 +14,16 @@ The aim of this project is to develop a multiplayer tetris game in Full Stack Ja
 
 ## the game
 1. single player rules
-    - goal
+    - goal \
         Bring down blocks from the top of the screen \
         Your objective is to get all the blocks to fill all the empty space in a line at the bottom of the screen \
         The main goal is to last as long as you can
-    - game over (*topping out*)
+    - game over (*topping out*) \
         Your game is over if your pieces reach the top of the screen
-    - action
+    - action \
         You can only move the pieces in specific ways (rotation by 90°) \
         You can only remove pieces from the screen by filling all the blank space in a line
-    - board
+    - board \
         10 columns and 20 lines
 
 2. multi players rules
