@@ -82,9 +82,11 @@ $ npm run client-dist
 About the game :
 - [wikipedia - tetris](https://en.wikipedia.org/wiki/Tetris#Game_pieces)
 - [interaction-design - tetris](https://www.interaction-design.org/literature/article/a-game-explained-an-example-of-a-single-game-and-how-it-meets-the-rules-of-fun)
+
 About ReduxJS :
 - [daveceddia - what-does-redux-do](https://daveceddia.com/what-does-redux-do/)
 - [daveceddia - how-does-redux-work](https://daveceddia.com/how-does-redux-work/)
 - [reduxjs - basic-tutorial](https://redux.js.org/basics/basic-tutorial)
+
 Other :
 - [itnext - hash based url](https://itnext.io/why-using-hash-based-urls-in-your-react-spa-will-save-you-more-time-than-you-think-a21e2c560879)
