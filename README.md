@@ -3,9 +3,39 @@
 The aim of this project is to develop a multiplayer tetris game in Full Stack Javascript
 
 ## table of contents
+* [usage](#usage)
 * [the game](#game)
 * [project constraints](#constraints)
 * [references](#references)
+
+## usage <a id="usage"></a>
+Development Mode
+```diff
+# INSTALL DEPENDENCIES
+$ npm install
+
+# LAUNCH SERVER
+$ npm run srv-dev
+> red_tetrisboilerplate@0.0.1 srv-dev /project/path/redtetris
+> DEBUG=tetris:* babel-watch -w src src/server/main.js
+
+# LAUNCH CLIENT
+$ npm run client-dev
+> red_tetrisboilerplate@0.0.1 client-dev /project/path/redtetris
+> webpack-dev-server --colors --hot --inline --host 0.0.0.0 --port 8080
+
+# RUN TEST
+$ npm run test
+```
+
+Production Mode
+```diff
+# LAUNCH SERVER
+$ npm run srv-dist
+
+# LAUNCH CLIENT
+$ npm run client-dist
+```
 
 ## the game <a id="game"></a>
 1. single player rules
@@ -49,7 +79,12 @@ The aim of this project is to develop a multiplayer tetris game in Full Stack Ja
     - hash based url (*http://<server_name_or_ip>:<port>/#<room>[<player_name>]*)
 
 ## references <a id="references"></a>
+About the game :
 - [wikipedia - tetris](https://en.wikipedia.org/wiki/Tetris#Game_pieces)
 - [interaction-design - tetris](https://www.interaction-design.org/literature/article/a-game-explained-an-example-of-a-single-game-and-how-it-meets-the-rules-of-fun)
+About ReduxJS :
+- [daveceddia - what-does-redux-do](https://daveceddia.com/what-does-redux-do/)
+- [daveceddia - how-does-redux-work](https://daveceddia.com/how-does-redux-work/)
+- [reduxjs - basic-tutorial](https://redux.js.org/basics/basic-tutorial)
+Other :
 - [itnext - hash based url](https://itnext.io/why-using-hash-based-urls-in-your-react-spa-will-save-you-more-time-than-you-think-a21e2c560879)
-
