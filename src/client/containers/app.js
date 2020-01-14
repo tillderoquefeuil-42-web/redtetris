@@ -1,11 +1,11 @@
 import React from 'react'
-import { connect } from 'react-redux'
-import Counter from '../components/counter'
+
+import Board from '../components/board/board'
 
 const App = () => {
   return (
-    <div>  
-      <Counter/>
+    <div>
+      <Board />
     </div>
   )
 }
