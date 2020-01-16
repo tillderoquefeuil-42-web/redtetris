@@ -76,6 +76,7 @@ function Piece() {
 
     const piece = getRandomPiece();
     console.log(piece);
+    // let position = {x:0, y:0, r:0};
     // const [piece, setPiece] = useState(tmp);
     // const [size, setSize] = useState(getPieceSize(piece));
     const [position, setPosition] = useState({x:0, y:0, r:0});
