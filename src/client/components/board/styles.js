@@ -15,9 +15,9 @@ export const PieceWrapper = styled.div`
     position: absolute;
     left: ${props => props.position ? props.position.x : "0"}px;
     top: ${props => props.position ? props.position.y : "0"}px;
+    transform: rotate(${props => props.position ? props.position.r : "0"}deg);
     display: flex;
     flex-wrap: wrap;
-    transform: rotate(${props => props.position ? props.position.rotate : "0"}deg);
 `;
 
 
