@@ -1,60 +1,101 @@
-import React from 'react';
+import React, { useState } from 'react';
 // import { connect } from 'react-redux';
 
 import { Wrapper, PieceWrapper, Square } from './styles.js'
 
 import pieces from './pieces.js'
 
-
 const width = 500;
 
-class Board extends React.Component {
 
-    getBlockKey(x, y) {
-        return (x * 10 + y);
-    }
-
-    getBlockPosition(key) {        
-        return ({
-            x   : parseInt(key / 10),
-            y   : key % 10
-        });
-    }
-
-    fillBoard() {
-        let response = [];
-
-        for (var i=0; i<200; i++){
-            response.push(<Block key={i} />);
-        }
-
-        return response;
-    }
-
-    render() {
-        return (
-            <Wrapper width={width}>
-                <Piece />
-                { this.fillBoard() }
-            </Wrapper>
-        )
-    }
+function getBlockKey(x, y) {
+    return (x * 10 + y);
 }
 
-class Piece extends React.Component {
+function getBlockPosition(key) {        
+    return ({
+        x   : parseInt(key / 10),
+        y   : key % 10
+    });
+}
 
-    constructor(props) {
-        super(props);
+function getRandomPiece() {
+    // let index = 5;
+    let index = parseInt(Math.random()*100)%7;
 
-        this.state = {
-            piece   : this.getRandomPiece(),
-            position: {
-                x       : 0,
-                y       : 0,
-                rotate  : 0
-            }
+    return pieces[index];
+}
+
+function getPieceSize(piece) {
+    let size = {
+        width   : 0,
+        height  : 0
+    };
+
+    let columns = {
+        a   : false,
+        b   : false
+    };
+
+    for (let i=0; i<4; i++){
+        let j = i*2;
+
+        if (piece[j] || piece[j+1]){
+            size.height++;
+        }
+        if (piece[j] && !columns.a){
+            size.width++;
+            columns.a = true;
+        }
+        if (piece[j+1] && !columns.b){
+            size.width++;
+            columns.b = true;
         }
     }
+
+    return size;
+}
+
+
+
+function Board() {  
+    let blocks = [];
+    for (var i=0; i<200; i++){
+        blocks.push(<Block key={i} />);
+    }
+
+    return (
+        <Wrapper width={width}>
+            <Piece />
+            { blocks }
+        </Wrapper>
+    );
+}
+
+function Piece() {
+
+    const piece = getRandomPiece();
+    console.log(piece);
+    // const [piece, setPiece] = useState(tmp);
+    // const [size, setSize] = useState(getPieceSize(piece));
+    const [position, setPosition] = useState({x:0, y:0, r:0});
+
+    let blocks = [];
+    for (var i=0; i<8; i++){
+        blocks.push(<Block plain={piece[i]} key={i} />);
+    }
+
+    return (
+        <PieceWrapper 
+        width={ width }
+        position={ position }
+        >
+            { blocks }
+        </PieceWrapper>
+    );
+}
+
+class Piece2 extends React.Component {
 
     componentDidMount(){
         document.addEventListener("keydown", this._handleKeyDown);
@@ -72,30 +113,34 @@ class Piece extends React.Component {
     
     movePiece(keycode) {
         let pos = this.state.position;
-        let size = width/10;
+        let size = this.getDynamicSize()
+        let side = width/10;
+        console.log(pos, size);
 
         switch(keycode){
-            case 32:
-                pos.rotate = (pos.rotate + 90)%360;
-                break;
+            // case 32:
+            //     pos.rotate = (pos.rotate + 90)%360;
+            //     break;
+
             case 37:
-                if (pos.x >= size){
-                    pos.x -= size;
+                if (pos.x >= side){
+                    pos.x -= side;
                 }
                 break;
             case 38:
-                if (pos.y >= size){
-                    pos.y -= size;
+                if (pos.y >= side){
+                    pos.y -= side;
                 }
                 break;
+
             case 39:
-                if (pos.x < size * 10){
-                    pos.x += size;
+                if (pos.x < (side * (10 - size.width))){
+                    pos.x += side;
                 }
                 break;        
             case 40:
-                if (pos.y < size * 20){
-                    pos.y += size;
+                if (pos.y < side * (20 - size.height)){
+                    pos.y += side;
                 }
                 break;
         }
@@ -103,34 +148,43 @@ class Piece extends React.Component {
         this.setState({position:pos});
     }
 
-    getRandomPiece() {
-        let index = parseInt(Math.random()*100)%7;
+    // getDynamicPos(){
+    //     let side = width/10;
+    //     let position = this.state.position;
+    //     let correction = this.getCorrection(position);
+    // }
 
-        return pieces[index];
-    }
+    // getCorrection(pos){
+    //     let correction = {x:0, y:0};
 
-    fillPiece() {
-        let response = [];
-        let piece = this.state.piece;
+    //     switch (pos.rotate){
+    //         case 90:
+    //             correction.y = -1;
+    //             break;
+    //         case 180:
+    //             break;
+    //         case 270:
+    //             break;
+    //     }
 
-        for (var i=0; i<8; i++){
-            response.push(<Block plain={piece[i]} key={i} />);
-        }
+    //     return correction;
+    // }
 
-        return response;
-    }
+    // getDynamicSize() {
+    //     let pos = this.state.position;
+    //     let size = this.state.size;
 
+    //     // 0 | 90 | 180 | 270
+    //     if ([90, 270].indexOf(pos.rotate) !== -1){
+    //         let tmp = size.width;
+    //         size = {
+    //             width   : size.height,
+    //             height  : tmp
+    //         };
+    //     }
 
-    render() {
-        return (
-            <PieceWrapper 
-                width={width}
-                position={ this.state.position }
-            >
-                { this.fillPiece() }
-            </PieceWrapper>
-        )
-    }
+    //     return size;
+    // }
 }
 
 
