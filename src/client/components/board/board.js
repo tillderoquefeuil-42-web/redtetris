@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 // import { connect } from 'react-redux';
+// import styled from 'styled-components';
 
-import { Wrapper, PieceWrapper, Square } from './styles.js'
+import { Wrapper, PieceWrapper, Square } from './styles.js';
 
-import pieces from './pieces.js'
+import pieces from './pieces.js';
+import useEventListener from '../eventListener/eventListener.js';
 
 const width = 500;
+const arrowCodes = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space'];
 
 
 function getBlockKey(x, y) {
@@ -20,8 +23,8 @@ function getBlockPosition(key) {
 }
 
 function getRandomPiece() {
-    // let index = 5;
-    let index = parseInt(Math.random()*100)%7;
+    let index = 5;
+    // let index = parseInt(Math.random()*100)%7;
 
     return pieces[index];
 }
@@ -56,7 +59,111 @@ function getPieceSize(piece) {
     return size;
 }
 
+function movePiece(keycode, position, piece) {
+    let size = getDynamicSize(position, piece);
+    let correction = getCorrection(position.r, size);
 
+    position = applyCorrection(position, correction);
+    let side = width/10;
+
+    switch(keycode){
+        case 'Space':
+            position.r = (position.r + 90)%360;
+            break;
+
+        case 'ArrowLeft':
+            if (position.x >= side){
+                position.x -= side;
+            }
+            break;
+        case 'ArrowUp':
+            if (position.y >= side){
+                position.y -= side;
+            }
+            break;
+
+        case 'ArrowRight':
+            if (position.x < (side * (10 - size.width))){
+                position.x += side;
+            }
+            break;        
+        case 'ArrowDown':
+            if (position.y < side * (20 - size.height)){
+                position.y += side;
+            }
+            break;
+    }
+
+    position = cancelCorrection(position, correction);
+    console.log(position);
+    return position;
+}
+
+function getDynamicSize(position, piece) {
+    let size = getPieceSize(piece);
+
+    // 0 | 90 | 180 | 270
+    if ([90, 270].indexOf(position.r) !== -1){
+        size.width = size.width + size.height;
+        size.height = size.width - size.height;
+        size.width = size.width - size.height;
+    }
+
+    return size;
+}
+
+function getCorrection(rotation, size){
+    let correction = {x:0, y:0};
+
+    switch (rotation){
+        case 90:
+            //for everybody
+            correction.y = 1;
+            //for bar
+            if (size.width === 4){
+                correction.x = -1;
+            }
+            break;
+        case 180:
+            //for everybody
+            correction.y = 1;
+            //for bar
+            if (size.height === 4){
+                correction.x = 1;
+                correction.y = 0;
+            }
+            break;
+        case 270:
+            //for everybody
+            correction.x = -1;
+            correction.y = 1;
+            //for bar
+            if (size.width === 4){
+                correction.y = 2;
+            }
+            break;
+    }
+
+    return correction;
+}
+
+function applyCorrection(position, correction){
+    let side = width/10;
+
+    position.x = position.x + (side * correction.x);
+    position.y = position.y + (side * correction.y);
+    
+    return position;
+}
+
+function cancelCorrection(position, correction){
+    let side = width/10;
+    
+    position.x = position.x - (side * correction.x);
+    position.y = position.y - (side * correction.y);
+    
+    return position;
+}
 
 function Board() {  
     let blocks = [];
@@ -74,127 +181,39 @@ function Board() {
 
 function Piece() {
 
-    const piece = getRandomPiece();
-    console.log(piece);
-    // const [piece, setPiece] = useState(tmp);
-    // const [size, setSize] = useState(getPieceSize(piece));
+    const [piece, setPiece] = useState(getRandomPiece());
     const [position, setPosition] = useState({x:0, y:0, r:0});
 
     let blocks = [];
     for (var i=0; i<8; i++){
-        blocks.push(<Block plain={piece[i]} key={i} />);
+        blocks.push(Block(piece[i], i));
     }
+
+    const handleKeyPress = (event) => {
+        if (arrowCodes.indexOf(event.code) !== -1){
+            let _p = movePiece(event.code, position, piece);
+            setPosition({x:_p.x, y:_p.y, r:_p.r});
+        }
+    }
+
+    const handler = useCallback(handleKeyPress, []);    
+    useEventListener('keydown', handler);
 
     return (
         <PieceWrapper 
-        width={ width }
-        position={ position }
+            width={ width }
+            position={ position }
         >
             { blocks }
         </PieceWrapper>
     );
 }
 
-class Piece2 extends React.Component {
 
-    componentDidMount(){
-        document.addEventListener("keydown", this._handleKeyDown);
-    }
-        
-    componentWillUnmount() {
-        document.removeEventListener("keydown", this._handleKeyDown);
-    }
-
-    _handleKeyDown = (event) => {
-        if ([32, 37, 38, 39, 40].indexOf(event.keyCode) !== -1){
-            this.movePiece(event.keyCode);
-        }    
-    }
-    
-    movePiece(keycode) {
-        let pos = this.state.position;
-        let size = this.getDynamicSize()
-        let side = width/10;
-        console.log(pos, size);
-
-        switch(keycode){
-            // case 32:
-            //     pos.rotate = (pos.rotate + 90)%360;
-            //     break;
-
-            case 37:
-                if (pos.x >= side){
-                    pos.x -= side;
-                }
-                break;
-            case 38:
-                if (pos.y >= side){
-                    pos.y -= side;
-                }
-                break;
-
-            case 39:
-                if (pos.x < (side * (10 - size.width))){
-                    pos.x += side;
-                }
-                break;        
-            case 40:
-                if (pos.y < side * (20 - size.height)){
-                    pos.y += side;
-                }
-                break;
-        }
-
-        this.setState({position:pos});
-    }
-
-    // getDynamicPos(){
-    //     let side = width/10;
-    //     let position = this.state.position;
-    //     let correction = this.getCorrection(position);
-    // }
-
-    // getCorrection(pos){
-    //     let correction = {x:0, y:0};
-
-    //     switch (pos.rotate){
-    //         case 90:
-    //             correction.y = -1;
-    //             break;
-    //         case 180:
-    //             break;
-    //         case 270:
-    //             break;
-    //     }
-
-    //     return correction;
-    // }
-
-    // getDynamicSize() {
-    //     let pos = this.state.position;
-    //     let size = this.state.size;
-
-    //     // 0 | 90 | 180 | 270
-    //     if ([90, 270].indexOf(pos.rotate) !== -1){
-    //         let tmp = size.width;
-    //         size = {
-    //             width   : size.height,
-    //             height  : tmp
-    //         };
-    //     }
-
-    //     return size;
-    // }
-}
-
-
-class Block extends React.Component {
-
-    render() {
-        return (
-            <Square size={width/10} bg={ this.props.plain } piece={ [1,0].indexOf(this.props.plain) === -1? false : true } />
-        )
-    }
+function Block(plain, key) {
+    return (
+        <Square key={ key } size={ width/10 } bg={ plain } piece={ [1,0].indexOf(plain) === -1? false : true } />
+    );
 }
 
 
