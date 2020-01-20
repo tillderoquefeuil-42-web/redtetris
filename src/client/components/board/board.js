@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
 // import { connect } from 'react-redux';
-// import styled from 'styled-components';
 
 import { Wrapper, Block } from './styles.js';
 
@@ -31,7 +30,7 @@ function handleKeypress(keycode, blocks, piece){
             piece = rotate(blocks, piece);
             break;
         case arrowCodes.SPACE:
-            console.log('drop');
+            piece = dropspace(blocks, piece, keycode);
             break;
     }
 
@@ -43,7 +42,26 @@ function drop(blocks, piece, keycode) {
     let _p = move(blocks, piece, keycode);
 
     if (!_p) {
-        return { END:true };
+        piece.END = true
+        return piece;
+    }
+
+    return _p;
+}
+
+function dropspace(blocks, piece, keycode) {
+
+    let _p = piece;
+    let lastPiece = piece;
+
+    for (let i=0; i<boardsize.y; i++){
+        lastPiece = _p;
+        _p = move(blocks, _p, keycode);
+
+        if (!_p) {
+            lastPiece.END = true
+            return lastPiece;
+        }
     }
 
     return _p;
@@ -60,6 +78,7 @@ function move(blocks, piece, dir){
         case arrowCodes.LEFT:
             x = x - 1;
             break;
+        case arrowCodes.SPACE:
         case arrowCodes.DOWN:
             y = y + 1;
             break;
@@ -89,32 +108,52 @@ function rotate(blocks, piece) {
 
 // MANAGE BLOCKS
 
+function getOneBlock(data, index) {
+
+    data = data || {};
+    let options = {};
+
+    options.index = data.key || data.index;
+
+    options.size = (data.props? data.props.size : data.size) || (width/10);
+    options.plain = data.props? data.props.plain : data.plain;
+    options.color = data.props? data.props.color : data.color;
+
+    if (index){
+        options.index = index;
+    }
+    
+    if (!options.index && options.index !== 0){
+        console.warn("block without key/index");
+        return null;
+    }
+
+    return (<Block key={ options.index } size={ options.size } plain={ options.plain } color={ options.color } />);
+}
+
 function getEmptyBlocks(piece){
 
     let blocks = [];
     for (var i=0; i<200; i++){
-        blocks.push(<Block key={ i } size={ width/10 } />);
+        blocks.push(getOneBlock({index:i}));
     }
 
     if (piece){
         eachBlock(piece.type, piece.x, piece.y, piece.dir, function(x, y) {
             let index = getBlockIndex(x, y);
-            blocks[index] = <Block key={index} size={ width/10 } plain={ true } color={ piece.type.color } />;
+            blocks[index] = getOneBlock({index:index, plain:true, color:piece.type.color });
         });
     }
 
     return blocks;
 }
 
-function getBlocksCopy(_blocks, log=false){
+function getBlocksCopy(_blocks){
     let blocks = [];
 
     for (let i in _blocks){
         let block = _blocks[i];
-        if (log && block.props.plain){
-            console.log(block);
-        }
-        blocks[block.key] = <Block key={ block.key } size={ block.props.size } plain={ block.props.plain } color={ block.props.color } />
+        blocks[block.key] = getOneBlock(block);
     }
 
     return blocks;
@@ -124,28 +163,13 @@ function getBlockIndex(x, y){
     return (y * 10 + x);
 }
 
-function getBlock(blocks, x, y){
+function getBlockByCords(blocks, x, y){
     let index = getBlockIndex(x, y);
-
     return blocks[index];
 }
 
-function setBlock(blocks, x, y, block = null){
-    let index = getBlockIndex(x, y);
-
-    if (block){
-        block = <Block key={ block.key } size={ block.props.size } plain={ block.props.plain } color={ block.props.color } />
-    } else {
-        block = <Block key={ index } size={ width/10 } />
-    }
-    
-    blocks[index] = block;
-
-    return blocks;
-}
-
 function blockIsFree(blocks, x, y){
-    let block = getBlock(blocks, x, y);
+    let block = getBlockByCords(blocks, x, y);
 
     if (!block || !block.props.plain){
         return true;
@@ -214,8 +238,6 @@ function removeLines(blocks) {
         }
         
         if (complete){
-            console.log(`for line ${y}`);
-            console.log('remove line')
             blocks = removeLine(blocks, y);
             y = y + 1;
         }
@@ -229,8 +251,12 @@ function removeLine(blocks, line) {
 
     for (y=line; y>=0; --y) {
         for (x=0; x<boardsize.x; x++) {
-            let block = getBlock(blocks, x, y-1);
-            blocks = setBlock(blocks, x, y, block);
+
+            let index = getBlockIndex(x, y);
+            let block = getBlockByCords(blocks, x, y-1, true);
+            let newBlock = (block? getOneBlock(block, index) : getOneBlock({index:index}));
+
+            blocks[index] = newBlock;
         }
     }
 
@@ -243,7 +269,7 @@ function updateBoard(staticBlocks, piece){
 
     eachBlock(piece.type, piece.x, piece.y, piece.dir, function(x, y) {
         let index = getBlockIndex(x, y);
-        blocks[index] = <Block key={index} size={ width/10 } plain={ true } color={ piece.type.color } />;
+        blocks[index] = getOneBlock({index:index, plain:true, color:piece.type.color });
     });
 
     return blocks;
@@ -263,33 +289,30 @@ function Board() {
         if (Object.values(arrowCodes).indexOf(event.code) !== -1){
             let newPiece = handleKeypress(event.code, blocks, piece);
 
-            if (newPiece && newPiece.type){
-                setPiece(newPiece);                
-                setCurrent(updateBoard(blocks, newPiece));
-            } else if (newPiece && newPiece.END){
-                console.log(current);
-                let blocksCopy = getBlocksCopy(current);
+            if (newPiece && newPiece.END){
+                setPiece(newPiece);
+                let newCurrent = updateBoard(blocks, newPiece);
+                setCurrent(newCurrent);
+
+                let blocksCopy = getBlocksCopy(newCurrent);
                 let newBlocks = removeLines(blocksCopy);
-                console.log(newBlocks);
                 setBlocks(newBlocks);
                 newPiece = getRandomPiece(piece);
                 setPiece(newPiece);
 
                 setCurrent(updateBoard(newBlocks, newPiece));
+            } else if (newPiece && newPiece.type){
+                setPiece(newPiece);                
+                setCurrent(updateBoard(blocks, newPiece));
             }
         }
     }
-
-    // useEffect(()=>{
-        // console.log(piece);
-        // console.log(piece.bag.length);
-    // });
 
     const handler = useCallback(handleKeyPress, [piece, blocks, current]);
     useEventListener('keydown', handler);
 
     return (
-        <Wrapper width={width}>
+        <Wrapper width={ width }>
             { current }
         </Wrapper>
     );
