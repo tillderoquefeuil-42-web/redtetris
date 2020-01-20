@@ -10,7 +10,7 @@ export const Wrapper = styled.div`
 `;
 
 export const PieceWrapper = styled.div`
-    width: ${props => props.width ? props.width*0.2 : "20"}px;
+    width: ${props => props.width ? props.width*0.4 : "20"}px;
     height: ${props => props.width ? props.width*0.4 : "40"}px;
     position: absolute;
     left: ${props => props.position ? props.position.x : "0"}px;
@@ -21,14 +21,11 @@ export const PieceWrapper = styled.div`
 `;
 
 
-export const Square = styled.div`
+export const Block = styled.div`
     width: ${props => props.size ? props.size-1 : "9"}px;
     height: ${props => props.size ? props.size-1 : "9"}px;
-    background: ${props => props.bg && props.piece ? "palevioletred" : "none"};
-        
     border: 0.5px solid #000;
-    ${props => props.piece ? 
-    "border: 0.5px solid #fff;" : ""}
-    ${props => !props.bg && props.piece ? 
-    "border: none;" : ""}
+
+    background: ${props => props.plain? props.color : "none"};
+        
 `;

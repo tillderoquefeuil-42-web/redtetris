@@ -82,6 +82,10 @@ $ npm run client-dist
 About the game :
 - [wikipedia - tetris](https://en.wikipedia.org/wiki/Tetris#Game_pieces)
 - [interaction-design - tetris](https://www.interaction-design.org/literature/article/a-game-explained-an-example-of-a-single-game-and-how-it-meets-the-rules-of-fun)
+- [codeincomplete - javascript tetris](https://codeincomplete.com/posts/javascript-tetris/)
+
+About ReactJS :
+- [usehooks - useEventListener](https://usehooks.com/useEventListener/)
 
 About ReduxJS :
 - [daveceddia - what-does-redux-do](https://daveceddia.com/what-does-redux-do/)
