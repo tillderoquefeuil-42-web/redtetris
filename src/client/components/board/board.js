@@ -5,12 +5,13 @@ import { Wrapper, Block } from './styles.js';
 
 import pieces from './pieces.js';
 import useEventListener from '../eventListener/eventListener.js';
+import useInterval from '../interval/interval.js';
 
 // CONST
 
 const width = 500;
-const boardsize = {x:10, y:20};
-const arrowCodes = {LEFT:'ArrowLeft', RIGHT:'ArrowRight', UP:'ArrowUp', DOWN:'ArrowDown', SPACE:'Space'};
+const boardsize = { x:10, y:20 };
+const arrowCodes = { LEFT:'ArrowLeft', RIGHT:'ArrowRight', UP:'ArrowUp', DOWN:'ArrowDown', SPACE:'Space' };
 const DIR = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3, MIN: 0, MAX: 3 };
 
 
@@ -225,6 +226,7 @@ function getRandomPiece(lastPiece) {
 
 function removeLines(blocks) {
 
+    let n = 0;
     let x, y, complete;
 
     for (y = boardsize.y-1; y >= 0; y--) {
@@ -239,11 +241,12 @@ function removeLines(blocks) {
         
         if (complete){
             blocks = removeLine(blocks, y);
+            n++;
             y = y + 1;
         }
     }
 
-    return blocks;
+    return [blocks, n];
 }
 
 function removeLine(blocks, line) {
@@ -261,6 +264,25 @@ function removeLine(blocks, line) {
     }
 
     return blocks;
+}
+
+function pieceIsStuck(blocks, piece){
+
+    let stuck = true;
+    for (var i in arrowCodes){
+        let keypress = arrowCodes[i];
+        if (keypress === arrowCodes.SPACE){
+            continue;
+        }
+
+        let _p = handleKeypress(keypress, blocks, piece);
+        if (_p && !_p.END){
+            stuck = false;
+            break;
+        }
+    }
+
+    return stuck;
 }
 
 function updateBoard(staticBlocks, piece){
@@ -281,12 +303,16 @@ function updateBoard(staticBlocks, piece){
 function Board() {
 
     const [piece, setPiece] = useState(getRandomPiece());
+    const [over, setOver] = useState(false);
 
     const [blocks, setBlocks] = useState(getEmptyBlocks());
     const [current, setCurrent] = useState(getEmptyBlocks(piece));
+    
+    const [delay, setDelay] = useState(2000);
 
     const handleKeyPress = (event) => {
-        if (Object.values(arrowCodes).indexOf(event.code) !== -1){
+
+        if (!over && Object.values(arrowCodes).indexOf(event.code) !== -1){
             let newPiece = handleKeypress(event.code, blocks, piece);
 
             if (newPiece && newPiece.END){
@@ -295,12 +321,21 @@ function Board() {
                 setCurrent(newCurrent);
 
                 let blocksCopy = getBlocksCopy(newCurrent);
-                let newBlocks = removeLines(blocksCopy);
+                let [newBlocks, lines] = removeLines(blocksCopy);
                 setBlocks(newBlocks);
                 newPiece = getRandomPiece(piece);
                 setPiece(newPiece);
 
-                setCurrent(updateBoard(newBlocks, newPiece));
+                if (pieceIsStuck(newBlocks, newPiece)){
+                    console.log("GAME OVER BIATCH");
+                    setOver(true);
+                } else {
+                    setCurrent(updateBoard(newBlocks, newPiece));
+                    if (lines > 0){
+                        setDelay(delay - (50 * lines));
+                    }
+                }
+
             } else if (newPiece && newPiece.type){
                 setPiece(newPiece);                
                 setCurrent(updateBoard(blocks, newPiece));
@@ -308,7 +343,11 @@ function Board() {
         }
     }
 
-    const handler = useCallback(handleKeyPress, [piece, blocks, current]);
+    useInterval(() => {
+        handleKeyPress({code:arrowCodes.DOWN});
+    }, delay);
+
+    const handler = useCallback(handleKeyPress, [piece, blocks, current, over, delay]);
     useEventListener('keydown', handler);
 
     return (

@@ -86,6 +86,7 @@ About the game :
 
 About ReactJS :
 - [usehooks - useEventListener](https://usehooks.com/useEventListener/)
+- [overreact - setinterval with react hooks](https://overreacted.io/making-setinterval-declarative-with-react-hooks/)
 
 About ReduxJS :
 - [daveceddia - what-does-redux-do](https://daveceddia.com/what-does-redux-do/)
