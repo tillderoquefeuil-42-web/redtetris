@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 // import { connect } from 'react-redux';
 
-import { Wrapper, Block } from './styles.js';
+import { Container, Column, BoardWrapper, NextPieceWrapper, Block } from './styles.js';
 
 import pieces from './pieces.js';
 import useEventListener from '../eventListener/eventListener.js';
@@ -9,15 +9,14 @@ import useInterval from '../interval/interval.js';
 
 // CONST
 
-const width = 500;
 const boardsize = { x:10, y:20 };
 const arrowCodes = { LEFT:'ArrowLeft', RIGHT:'ArrowRight', UP:'ArrowUp', DOWN:'ArrowDown', SPACE:'Space' };
 const DIR = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3, MIN: 0, MAX: 3 };
-
+const scoring = [0, 40, 100, 300, 1200];
 
 // MANAGE USER ACTIONS
 
-function handleKeypress(keycode, blocks, piece){
+function handleAction(keycode, blocks, piece){
 
     switch(keycode){
         case arrowCodes.LEFT:
@@ -31,7 +30,7 @@ function handleKeypress(keycode, blocks, piece){
             piece = rotate(blocks, piece);
             break;
         case arrowCodes.SPACE:
-            piece = dropspace(blocks, piece, keycode);
+            piece = harddrop(blocks, piece, keycode);
             break;
     }
 
@@ -50,16 +49,19 @@ function drop(blocks, piece, keycode) {
     return _p;
 }
 
-function dropspace(blocks, piece, keycode) {
+function harddrop(blocks, piece, keycode) {
 
     let _p = piece;
     let lastPiece = piece;
+    let rows = 1;
 
     for (let i=0; i<boardsize.y; i++){
         lastPiece = _p;
         _p = move(blocks, _p, keycode);
+        rows++;
 
         if (!_p) {
+            lastPiece.harddrop_rows = rows;
             lastPiece.END = true
             return lastPiece;
         }
@@ -116,9 +118,9 @@ function getOneBlock(data, index) {
 
     options.index = data.key || data.index;
 
-    options.size = (data.props? data.props.size : data.size) || (width/10);
     options.plain = data.props? data.props.plain : data.plain;
     options.color = data.props? data.props.color : data.color;
+    options.demo = data.props? data.props.demo : data.demo;
 
     if (index){
         options.index = index;
@@ -129,17 +131,20 @@ function getOneBlock(data, index) {
         return null;
     }
 
-    return (<Block key={ options.index } size={ options.size } plain={ options.plain } color={ options.color } />);
+    return (<Block key={ options.index } plain={ options.plain } color={ options.color } demo={ options.demo } />);
 }
 
-function getEmptyBlocks(piece){
+function getEmptyBlocks(piece, demo=false){
+
+    let max = demo? 40 : 200;
 
     let blocks = [];
-    for (var i=0; i<200; i++){
-        blocks.push(getOneBlock({index:i}));
+    for (var i=0; i<max; i++){
+        blocks.push(getOneBlock({ index:i, demo:demo }));
     }
 
     if (piece){
+        
         eachBlock(piece.type, piece.x, piece.y, piece.dir, function(x, y) {
             let index = getBlockIndex(x, y);
             blocks[index] = getOneBlock({index:index, plain:true, color:piece.type.color });
@@ -211,17 +216,29 @@ function eachBlock(type, x, y, dir, callback) {
 
 // UPDATE BOARD / PIECE
 
-function getRandomPiece(lastPiece) {
+function getRandomPiece(lastPiece, next=false) {
     let piecesBag = (lastPiece? lastPiece.bag : []);
+    let piece;
 
     if (piecesBag.length == 0){
         piecesBag = ['i','i','i','i','j','j','j','j','l','l','l','l','o','o','o','o','s','s','s','s','t','t','t','t','z','z','z','z'];
     }
 
-    let random = (Math.random() * (piecesBag.length-1));
-    let pieceType = piecesBag.splice(random, 1)[0];
-    let type = pieces[pieceType];
-    return { type: type, dir: DIR.UP, x: 2, y: 0, bag: piecesBag };
+    if (lastPiece && lastPiece.next){
+        piece = lastPiece.next;
+    } else {
+        let random = (Math.random() * (piecesBag.length-1));
+        let pieceType = piecesBag.splice(random, 1)[0];
+        let type = pieces[pieceType];
+
+        piece = { type: type, dir: DIR.UP, x: 3, y: 0, bag: piecesBag };
+    }
+
+    if (!next){
+        piece.next = getRandomPiece(piece, true);
+    }
+
+    return piece;
 }
 
 function removeLines(blocks) {
@@ -275,7 +292,7 @@ function pieceIsStuck(blocks, piece){
             continue;
         }
 
-        let _p = handleKeypress(keypress, blocks, piece);
+        let _p = handleAction(keypress, blocks, piece);
         if (_p && !_p.END){
             stuck = false;
             break;
@@ -283,6 +300,26 @@ function pieceIsStuck(blocks, piece){
     }
 
     return stuck;
+}
+
+function updateDelay(delay, lines){
+    let newDelay = delay - (50 * lines);
+    if (lines > 0){
+        return ((newDelay > 500? newDelay : 500));
+    }
+
+    return delay;
+}
+
+function updateScore(score, lines, piece){
+
+    if (piece.harddrop_rows){
+        score += piece.harddrop_rows;
+    }
+
+    score += scoring[lines];
+
+    return score;
 }
 
 function updateBoard(staticBlocks, piece){
@@ -303,6 +340,7 @@ function updateBoard(staticBlocks, piece){
 function Board() {
 
     const [piece, setPiece] = useState(getRandomPiece());
+    const [score, setScore] = useState(0);
     const [over, setOver] = useState(false);
 
     const [blocks, setBlocks] = useState(getEmptyBlocks());
@@ -313,8 +351,9 @@ function Board() {
     const handleKeyPress = (event) => {
 
         if (!over && Object.values(arrowCodes).indexOf(event.code) !== -1){
-            let newPiece = handleKeypress(event.code, blocks, piece);
+            let newPiece = handleAction(event.code, blocks, piece);
 
+            //CURRENT PIECE IS STUCK
             if (newPiece && newPiece.END){
                 setPiece(newPiece);
                 let newCurrent = updateBoard(blocks, newPiece);
@@ -323,6 +362,10 @@ function Board() {
                 let blocksCopy = getBlocksCopy(newCurrent);
                 let [newBlocks, lines] = removeLines(blocksCopy);
                 setBlocks(newBlocks);
+                setScore(updateScore(score, lines, newPiece));
+
+
+                //GET NEXT PIECE
                 newPiece = getRandomPiece(piece);
                 setPiece(newPiece);
 
@@ -331,11 +374,10 @@ function Board() {
                     setOver(true);
                 } else {
                     setCurrent(updateBoard(newBlocks, newPiece));
-                    if (lines > 0){
-                        setDelay(delay - (50 * lines));
-                    }
+                    setDelay(updateDelay(delay, lines));
                 }
 
+            //FETCH MOVE
             } else if (newPiece && newPiece.type){
                 setPiece(newPiece);                
                 setCurrent(updateBoard(blocks, newPiece));
@@ -344,16 +386,44 @@ function Board() {
     }
 
     useInterval(() => {
-        handleKeyPress({code:arrowCodes.DOWN});
+        handleKeyPress({ code:arrowCodes.DOWN });
     }, delay);
 
-    const handler = useCallback(handleKeyPress, [piece, blocks, current, over, delay]);
+    const handler = useCallback(handleKeyPress, [piece, blocks, current, over, delay, score]);
     useEventListener('keydown', handler);
 
     return (
-        <Wrapper width={ width }>
-            { current }
-        </Wrapper>
+        <Container>
+
+            <Column></Column>
+            
+            <Column>
+                <NextPiece piece={ piece.next } />
+                <BoardWrapper>
+                    { current }
+                </BoardWrapper>
+                <h1>{ score }</h1>
+            </Column>
+            
+            <Column></Column>
+
+        </Container>
+    );
+}
+
+function NextPiece(props) {
+
+    let blocks = [];
+
+    if (props.piece){
+        let piece = props.piece;
+        blocks = getEmptyBlocks(piece, true);
+    }
+
+    return (
+        <NextPieceWrapper>
+            { blocks }
+        </NextPieceWrapper>
     );
 }
 
