@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 // import { connect } from 'react-redux';
 
-import { Container, Column, BoardWrapper, NextPieceWrapper, PreviewWrapper, Block, PreviewBlock, Score } from './styles.js';
+import { Container, Column, BoardWrapper, NextPieceWrapper, PreviewWrapper, Block, PreviewBlock, Score, PreviewScore } from './styles.js';
 
 import pieces from './pieces.js';
 import useEventListener from '../eventListener/eventListener.js';
@@ -425,7 +425,7 @@ function Board() {
         <Container>
 
             <Column>
-                <Preview blocks={ blocks } />
+                <Preview blocks={ blocks } score={ score }/>
             </Column>
 
             <Column>
@@ -470,18 +470,25 @@ function NextPiece(props) {
 function Preview(props){
 
     const [blocks, setBlocks] = useState(null);
+    const [score, setScore] = useState(0);
 
     useEffect(()=>{
         let _blocks = props.blocks;
+        let _score = props.score;
 
         if (_blocks !== blocks){
             setBlocks(_blocks);
+        }
+
+        if (_score !== score){
+            setScore(_score);
         }
     });
 
     return (
         <PreviewWrapper>
             { blocksToPreview(blocks) }
+            <PreviewScore>{ score }</PreviewScore>
         </PreviewWrapper>
     );
 

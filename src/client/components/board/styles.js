@@ -32,6 +32,7 @@ export const Column = styled.div`
 export const BoardWrapper = styled.div`
     width: 100px;
     height: 200px;
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     background: #832424;
@@ -79,14 +80,13 @@ export const NextPieceWrapper = styled.div`
 `;
 
 
-export const PreviewWrapper = styled.div`
+export const PreviewWrapper = styled(BoardWrapper)`
     width: 50px;
     height: 100px;
-    display: flex;
-    flex-wrap: wrap;
     background: none;
     border: 3px solid #860000;
     border-radius: 5px;
+    box-shadow: none;
 
     @media ${devices.mobileS}, @media ${devices.mobileM}, @media ${devices.mobileL} {
         width: 100px;
@@ -131,11 +131,11 @@ export const Block = styled.div`
 export const PreviewBlock = styled.div`
     width: 4.8px;
     height: 4.8px;
-    border: 0.1px solid #860000;
+    border: 0.1px solid ${props => props.plain? '#860000' : 'transparent'};
     background: ${props => props.plain? '#860000' : 'none'};
-    
+
     @media ${devices.mobileS}, @media ${devices.mobileM}, @media ${devices.mobileL} {
-        border: 0.5px solid #860000;
+        border: 0.5px solid ${props => props.plain? '#860000' : 'transparent'};
         width: 9px;
         height: 9px;
     }
@@ -154,4 +154,12 @@ export const PreviewBlock = styled.div`
 export const Score = styled.h1`
     color: #fff;
     text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #e60073, 0 0 40px #e60073, 0 0 50px #e60073, 0 0 60px #e60073, 0 0 70px #e60073;
+`;
+
+export const PreviewScore = styled(Score)`
+    font-size: 20px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
 `;
