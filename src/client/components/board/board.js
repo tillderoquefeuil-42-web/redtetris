@@ -1,7 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 // import { connect } from 'react-redux';
 
-import { Container, Column, BoardWrapper, NextPieceWrapper, Block } from './styles.js';
+import { Container, Column, BoardWrapper, NextPieceWrapper, PreviewWrapper, Block, PreviewBlock, Score } from './styles.js';
 
 import pieces from './pieces.js';
 import useEventListener from '../eventListener/eventListener.js';
@@ -111,7 +111,7 @@ function rotate(blocks, piece) {
 
 // MANAGE BLOCKS
 
-function getOneBlock(data, index) {
+function getOneBlock(data, index, preview=false) {
 
     data = data || {};
     let options = {};
@@ -119,7 +119,6 @@ function getOneBlock(data, index) {
     options.index = data.key || data.index;
 
     options.plain = data.props? data.props.plain : data.plain;
-    options.color = data.props? data.props.color : data.color;
     options.demo = data.props? data.props.demo : data.demo;
 
     if (index){
@@ -131,8 +130,39 @@ function getOneBlock(data, index) {
         return null;
     }
 
-    return (<Block key={ options.index } plain={ options.plain } color={ options.color } demo={ options.demo } />);
+    if (preview){
+        return (<PreviewBlock key={ options.index } plain={ options.plain } demo={ options.demo } />);
+    }
+
+    return (<Block key={ options.index } plain={ options.plain } demo={ options.demo } />);
 }
+
+function blocksToPreview(blocks) {
+    let pBlocks = getBlocksCopy(blocks, true);
+
+    let x, y;
+
+    for (x=0; x<boardsize.x; x++) {
+
+        let emptyCol = true;
+
+        for (y=0; y<boardsize.y; y++){
+            if (!blockIsFree(pBlocks, x, y)){
+                emptyCol = false;
+                continue;
+            }
+
+            if (!emptyCol && blockIsFree(pBlocks, x, y)){
+                let index = getBlockIndex(x, y);
+                pBlocks[index] = getOneBlock({ plain:true }, index, true);
+            }
+
+        }
+    }
+
+    return pBlocks;
+}
+
 
 function getEmptyBlocks(piece, demo=false){
 
@@ -147,19 +177,19 @@ function getEmptyBlocks(piece, demo=false){
         
         eachBlock(piece.type, piece.x, piece.y, piece.dir, function(x, y) {
             let index = getBlockIndex(x, y);
-            blocks[index] = getOneBlock({index:index, plain:true, color:piece.type.color });
+            blocks[index] = getOneBlock({index:index, plain:true, color:piece.type.color, demo:demo });
         });
     }
 
     return blocks;
 }
 
-function getBlocksCopy(_blocks){
+function getBlocksCopy(_blocks, preview=false){
     let blocks = [];
 
     for (let i in _blocks){
         let block = _blocks[i];
-        blocks[block.key] = getOneBlock(block);
+        blocks[block.key] = getOneBlock(block, block.key, preview);
     }
 
     return blocks;
@@ -355,22 +385,21 @@ function Board() {
 
             //CURRENT PIECE IS STUCK
             if (newPiece && newPiece.END){
-                setPiece(newPiece);
                 let newCurrent = updateBoard(blocks, newPiece);
                 setCurrent(newCurrent);
 
                 let blocksCopy = getBlocksCopy(newCurrent);
                 let [newBlocks, lines] = removeLines(blocksCopy);
-                setBlocks(newBlocks);
-                setScore(updateScore(score, lines, newPiece));
-
+                let newScore = updateScore(score, lines, newPiece);
+                setScore(score); //for unknown reasons
 
                 //GET NEXT PIECE
                 newPiece = getRandomPiece(piece);
                 setPiece(newPiece);
+                setBlocks(newBlocks);
+                setScore(newScore);
 
                 if (pieceIsStuck(newBlocks, newPiece)){
-                    console.log("GAME OVER BIATCH");
                     setOver(true);
                 } else {
                     setCurrent(updateBoard(newBlocks, newPiece));
@@ -395,17 +424,20 @@ function Board() {
     return (
         <Container>
 
-            <Column></Column>
-            
             <Column>
-                <NextPiece piece={ piece.next } />
+                <Preview blocks={ blocks } />
+            </Column>
+
+            <Column>
                 <BoardWrapper>
                     { current }
                 </BoardWrapper>
-                <h1>{ score }</h1>
+                <Score>{ score }</Score>
             </Column>
-            
-            <Column></Column>
+
+            <Column>
+                <NextPiece piece={ piece.next } />
+            </Column>
 
         </Container>
     );
@@ -413,18 +445,46 @@ function Board() {
 
 function NextPiece(props) {
 
-    let blocks = [];
+    const [bagLength, setBagLength] = useState(0);
+    const [blocks, setBlocks] = useState(null);
 
-    if (props.piece){
+    useEffect(()=>{
         let piece = props.piece;
-        blocks = getEmptyBlocks(piece, true);
-    }
 
+        if (
+            (!blocks && piece) ||
+            (piece && piece.bag.length !== bagLength)
+        ){
+            setBagLength(piece.bag.length);
+            setBlocks(getEmptyBlocks(piece, true))
+        }
+    });
+ 
     return (
         <NextPieceWrapper>
             { blocks }
         </NextPieceWrapper>
     );
+}
+
+function Preview(props){
+
+    const [blocks, setBlocks] = useState(null);
+
+    useEffect(()=>{
+        let _blocks = props.blocks;
+
+        if (_blocks !== blocks){
+            setBlocks(_blocks);
+        }
+    });
+
+    return (
+        <PreviewWrapper>
+            { blocksToPreview(blocks) }
+        </PreviewWrapper>
+    );
+
 }
 
 // function mapStateToProps(state) {
