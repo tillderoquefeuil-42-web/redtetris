@@ -119,6 +119,7 @@ function getOneBlock(data, index, preview=false) {
     options.index = data.key || data.index;
 
     options.plain = data.props? data.props.plain : data.plain;
+    options.color = data.props? data.props.color : data.color;
     options.demo = data.props? data.props.demo : data.demo;
 
     if (index){
@@ -134,7 +135,7 @@ function getOneBlock(data, index, preview=false) {
         return (<PreviewBlock key={ options.index } plain={ options.plain } demo={ options.demo } />);
     }
 
-    return (<Block key={ options.index } plain={ options.plain } demo={ options.demo } />);
+    return (<Block key={ options.index } plain={ options.plain } demo={ options.demo } color={ options.color } />);
 }
 
 function blocksToPreview(blocks) {
@@ -162,7 +163,6 @@ function blocksToPreview(blocks) {
 
     return pBlocks;
 }
-
 
 function getEmptyBlocks(piece, demo=false){
 
