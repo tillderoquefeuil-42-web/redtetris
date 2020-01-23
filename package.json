@@ -20,7 +20,8 @@
     "redux-logger": "^2.6.1",
     "redux-thunk": "^2.0.1",
     "socket.io": "^2.3.0",
-    "styled-components": "4.0.0"
+    "styled-components": "4.0.0",
+    "webpack-dev-server": "1.14.1"
   },
   "devDependencies": {
     "babel-cli": "^6.7.7",
