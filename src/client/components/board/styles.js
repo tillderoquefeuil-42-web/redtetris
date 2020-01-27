@@ -109,8 +109,8 @@ export const Block = styled.div`
     width: 9.8px;
     height: 9.8px;
     border: 0.1px solid ${props => props.demo? (props.plain? '#000' : 'transparent') : '#860000'};
-    background: ${props => props.plain? '#c51b12' : 'none'};
-    
+    background: ${props => props.bstatic? '#860000' : (props.plain? '#c51b12' : 'none') };
+
     @media ${devices.mobileS}, @media ${devices.mobileM}, @media ${devices.mobileL} {
         border: 0.5px solid ${props => props.demo? (props.plain? '#000' : 'transparent') : '#860000'};
         width: 19px;
@@ -132,7 +132,7 @@ export const PreviewBlock = styled.div`
     width: 4.8px;
     height: 4.8px;
     border: 0.1px solid ${props => props.plain? '#860000' : 'transparent'};
-    background: ${props => props.plain? '#860000' : 'none'};
+    background: ${props => (props.plain || props.bstatic)? '#860000' : 'none'};
 
     @media ${devices.mobileS}, @media ${devices.mobileM}, @media ${devices.mobileL} {
         border: 0.5px solid ${props => props.plain? '#860000' : 'transparent'};

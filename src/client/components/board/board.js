@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-// import { connect } from 'react-redux';
+import { connect } from 'react-redux';
 
 import { Container, Column, BoardWrapper, NextPieceWrapper, PreviewWrapper, Block, PreviewBlock, Score, PreviewScore } from './styles.js';
 
@@ -70,7 +70,7 @@ function harddrop(blocks, piece, keycode) {
     return _p;
 }
 
-function move(blocks, piece, dir){
+function move(blocks, piece, dir) {
     let x = piece.x;
     let y = piece.y;
 
@@ -111,17 +111,55 @@ function rotate(blocks, piece) {
 
 // MANAGE BLOCKS
 
-function getOneBlock(data, index, preview=false) {
+function parseBoard(blocks, score) {
+    let board = {
+        player  : null,
+        score   : score,
+        blocks  : parseBlocks(blocks)
+    };
+
+    return board;
+}
+
+function parseBlocks(blocks){
+    let data = [];
+    let block, index;
+
+    for (let i in blocks){
+        block = blocks[i];
+        index = parseInt(block.key);
+
+        data[index] = {
+            bstatic : block.props.bstatic,
+            plain   : block.props.plain
+        };
+    }
+
+    return data;
+}
+
+function unparseBlocks(data) {
+    let blocks = [];
+
+    for (let index in data){
+        blocks[index] = getOneBlock(data[index], null, true);
+    }
+
+    return blocks;
+}
+
+function getOneBlock(data, index=null, preview=false) {
 
     data = data || {};
     let options = {};
 
     options.index = data.key || data.index;
 
+    options.bstatic = data.props? data.props.bstatic : data.bstatic;
     options.plain = data.props? data.props.plain : data.plain;
     options.demo = data.props? data.props.demo : data.demo;
 
-    if (index){
+    if (index !== null){
         options.index = index;
     }
     
@@ -131,10 +169,10 @@ function getOneBlock(data, index, preview=false) {
     }
 
     if (preview){
-        return (<PreviewBlock key={ options.index } plain={ options.plain } demo={ options.demo } />);
+        return (<PreviewBlock key={ options.index } plain={ options.plain } demo={ options.demo } bstatic={ options.bstatic } />);
     }
 
-    return (<Block key={ options.index } plain={ options.plain } demo={ options.demo } />);
+    return (<Block key={ options.index } plain={ options.plain } demo={ options.demo } bstatic={ options.bstatic } />);
 }
 
 function blocksToPreview(blocks) {
@@ -162,7 +200,6 @@ function blocksToPreview(blocks) {
 
     return pBlocks;
 }
-
 
 function getEmptyBlocks(piece, demo=false){
 
@@ -204,10 +241,12 @@ function getBlockByCords(blocks, x, y){
     return blocks[index];
 }
 
-function blockIsFree(blocks, x, y){
+function blockIsFree(blocks, x, y, strict=false){
     let block = getBlockByCords(blocks, x, y);
 
-    if (!block || !block.props.plain){
+    if (strict && (!block || !block.props.plain)){
+        return true;
+    } else if (!strict && (!block || (!block.props.plain && !block.props.bstatic))){
         return true;
     }
 
@@ -280,7 +319,7 @@ function removeLines(blocks) {
         complete = true;
         
         for (x=0; x<boardsize.x; x++){
-            if (blockIsFree(blocks, x, y)){
+            if (blockIsFree(blocks, x, y, true)){
                 complete = false;
                 break;
             }
@@ -303,8 +342,27 @@ function removeLine(blocks, line) {
         for (x=0; x<boardsize.x; x++) {
 
             let index = getBlockIndex(x, y);
-            let block = getBlockByCords(blocks, x, y-1, true);
+            let block = getBlockByCords(blocks, x, y-1);
             let newBlock = (block? getOneBlock(block, index) : getOneBlock({index:index}));
+
+            blocks[index] = newBlock;
+        }
+    }
+
+    return blocks;
+}
+
+function addStaticLine(blocks) {
+
+    for (let y=0; y<boardsize.y; y++) {
+        for (let x=0; x<boardsize.x; x++) {
+
+            let newBlock;
+            let index = getBlockIndex(x, y);
+
+            let block = getBlockByCords(blocks, x, y+1);
+
+            newBlock = (block? getOneBlock(block, index) : getOneBlock({ index:index, bstatic:true }));
 
             blocks[index] = newBlock;
         }
@@ -367,7 +425,7 @@ function updateBoard(staticBlocks, piece){
 
 // BOARD COMPONENT
 
-function Board() {
+function Board(props) {
 
     const [piece, setPiece] = useState(getRandomPiece());
     const [score, setScore] = useState(0);
@@ -396,14 +454,22 @@ function Board() {
                 //GET NEXT PIECE
                 newPiece = getRandomPiece(piece);
                 setPiece(newPiece);
+                // newBlocks = addStaticLine(newBlocks);
                 setBlocks(newBlocks);
                 setScore(newScore);
 
+                if (lines > 0){
+                    props.dispatch({ type: 'LINES_REMOVED' });
+                }
+
+                let board = parseBoard(newBlocks, newScore);
                 if (pieceIsStuck(newBlocks, newPiece)){
                     setOver(true);
+                    props.dispatch({ type: 'UPDATE_BOARD', board:board });
                 } else {
                     setCurrent(updateBoard(newBlocks, newPiece));
                     setDelay(updateDelay(delay, lines));
+                    props.dispatch({ type: 'UPDATE_BOARD', board:board });
                 }
 
             //FETCH MOVE
@@ -494,11 +560,11 @@ function Preview(props){
 
 }
 
-// function mapStateToProps(state) {
-//     return {
-//         count: state.counter.count
-//     };
-// }
+function mapStateToProps(state) {
+    return {
+        board: state.player.board
+    };
+}
 
-export default Board;
-// export default connect(mapStateToProps)(Board);
+// export default Board;
+export default connect(mapStateToProps)(Board);

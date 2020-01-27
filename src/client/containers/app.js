@@ -1,15 +1,18 @@
 import React from 'react'
+import { ConnectedRouter } from 'connected-react-router'
 
 import { Container, Title } from './styles.js';
-import Board from '../components/board/board'
+import routes from '../routes/routes';
 
-const App = () => {
+const App = ({ history }) => {
   return (
     <Container>
       <Title>RedTetris</Title>
-      <Board />
+      <ConnectedRouter history={history}>
+        { routes }
+      </ConnectedRouter>
     </Container>
-  )
+  );
 }
 
-export default App
+export default App;
