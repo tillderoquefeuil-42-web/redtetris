@@ -425,7 +425,7 @@ function updateBoard(staticBlocks, piece){
 
 // BOARD COMPONENT
 
-function Board(props) {
+const Board = (props) => {
 
     const [piece, setPiece] = useState(getRandomPiece());
     const [score, setScore] = useState(0);
@@ -507,9 +507,9 @@ function Board(props) {
 
         </Container>
     );
-}
+};
 
-function NextPiece(props) {
+const NextPiece = (props) => {
 
     const [bagLength, setBagLength] = useState(0);
     const [blocks, setBlocks] = useState(null);
@@ -531,9 +531,9 @@ function NextPiece(props) {
             { blocks }
         </NextPieceWrapper>
     );
-}
+};
 
-function Preview(props){
+const Preview = (props) => {
 
     const [blocks, setBlocks] = useState(null);
     const [score, setScore] = useState(0);
@@ -558,7 +558,9 @@ function Preview(props){
         </PreviewWrapper>
     );
 
-}
+};
+
+
 
 function mapStateToProps(state) {
     return {

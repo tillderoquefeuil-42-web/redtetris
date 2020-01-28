@@ -1,18 +1,34 @@
 import React from 'react'
-import { ConnectedRouter } from 'connected-react-router'
+import { connect } from 'react-redux';
+import { push } from 'connected-react-router'
 
 import { Container, Title } from './styles.js';
-import routes from '../routes/routes';
+import Board from '../components/board/board';
+import Login from '../components/login/login';
 
-const App = ({ history }) => {
+const App = (props) => {
+
+  let hash = '/#' + (props.logged? `${props.room}[${props.name}]` : '');
+  props.push(hash);
+
   return (
     <Container>
       <Title>RedTetris</Title>
-      <ConnectedRouter history={history}>
-        { routes }
-      </ConnectedRouter>
+
+      { props.logged ? 
+        <Board />
+        :
+        <Login />
+      }
+
     </Container>
   );
 }
 
-export default App;
+const mapStateToProps = state => ({
+  name    : state.login.name,
+  room    : state.login.room,
+  logged  : state.login.logged,
+})
+
+export default connect(mapStateToProps, { push })(App);

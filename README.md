@@ -98,3 +98,4 @@ About ReduxJS :
 
 Other :
 - [itnext - hash based url](https://itnext.io/why-using-hash-based-urls-in-your-react-spa-will-save-you-more-time-than-you-think-a21e2c560879)
+- [github - connected-react-router](https://github.com/supasate/connected-react-router/blob/master/README.md)
