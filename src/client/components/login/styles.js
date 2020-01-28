@@ -15,9 +15,10 @@ export const Wrapper = styled.div`
     align-items: center;
     padding: 50px;
     height: 150px;
-    background: #2b2b2b;
+    background: #210000;
     border-radius: 3px;
-    
+    color: #fff;
+
     min-width: 120px;
 
     @media ${devices.mobileS}, @media ${devices.mobileM}, @media ${devices.mobileL} {
@@ -87,6 +88,7 @@ export const Button = styled.button`
     display: block;
     width: 100%;
 
+    margin-top: 20px;
     margin-bottom: 0;
     font-weight: 400;
     text-align: center;

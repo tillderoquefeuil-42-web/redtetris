@@ -5,7 +5,7 @@ let socket = io(rootURL)
 
 export const socketMiddleware = store => next => action => {
 
-    console.log(action);
+    // console.log(action);
 
     switch (action.type){
         case 'UPDATE_BOARD':

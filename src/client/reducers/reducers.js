@@ -1,12 +1,12 @@
 import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
 
-import player from './player';
+import board from './board';
 import login from './login';
 
 const createRootReducer = (history) => combineReducers({
     router: connectRouter(history),
-    player,
+    board,
     login
 });
 

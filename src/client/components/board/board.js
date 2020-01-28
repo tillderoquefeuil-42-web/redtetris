@@ -113,7 +113,6 @@ function rotate(blocks, piece) {
 
 function parseBoard(blocks, score) {
     let board = {
-        player  : null,
         score   : score,
         blocks  : parseBlocks(blocks)
     };
@@ -433,7 +432,7 @@ const Board = (props) => {
 
     const [blocks, setBlocks] = useState(getEmptyBlocks());
     const [current, setCurrent] = useState(getEmptyBlocks(piece));
-    
+
     const [delay, setDelay] = useState(2000);
 
     const handleKeyPress = (event) => {
@@ -459,17 +458,17 @@ const Board = (props) => {
                 setScore(newScore);
 
                 if (lines > 0){
-                    props.dispatch({ type: 'LINES_REMOVED' });
+                    props.dispatch({ type: 'BOARD_LINES_REMOVED' });
                 }
 
                 let board = parseBoard(newBlocks, newScore);
                 if (pieceIsStuck(newBlocks, newPiece)){
                     setOver(true);
-                    props.dispatch({ type: 'UPDATE_BOARD', board:board });
+                    props.dispatch({ type: 'BOARD_UPDATE', board:board });
                 } else {
                     setCurrent(updateBoard(newBlocks, newPiece));
                     setDelay(updateDelay(delay, lines));
-                    props.dispatch({ type: 'UPDATE_BOARD', board:board });
+                    props.dispatch({ type: 'BOARD_UPDATE', board:board });
                 }
 
             //FETCH MOVE
@@ -563,9 +562,7 @@ const Preview = (props) => {
 
 
 function mapStateToProps(state) {
-    return {
-        board: state.player.board
-    };
+    return {};
 }
 
 // export default Board;
