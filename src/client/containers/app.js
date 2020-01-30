@@ -11,10 +11,10 @@ import { parseHash, getHashFromProps } from '../helpers/utils';
 
 function getRoute(props) {
 
-  if (props.logged && !props.start){
-    return <Waiting />
-  } else if (props.logged && props.start){
+  if (props.logged && props.start){
     return <Board />
+  } else if (props.logged){
+    return <Waiting />
   }
 
   return <Login />

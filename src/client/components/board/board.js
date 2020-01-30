@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import { Container, Column, BoardWrapper, NextPieceWrapper, PreviewWrapper, Block, PreviewBlock, Score, PreviewScore } from './styles.js';
 
-import pieces from './pieces.js';
+import PIECES from './pieces.js';
 import useEventListener from '../eventListener/eventListener.js';
 import useInterval from '../interval/interval.js';
 
@@ -87,7 +87,7 @@ function move(blocks, piece, dir) {
             break;
     }
 
-    if (freeToMove(blocks, piece.type, x, y, piece.dir)){
+    if (freeToMove(blocks, piece.model, x, y, piece.dir)){
         piece.x = x;
         piece.y = y;
 
@@ -100,7 +100,7 @@ function move(blocks, piece, dir) {
 function rotate(blocks, piece) {
     var dir = (piece.dir == DIR.MAX ? DIR.MIN : piece.dir + 1);
 
-    if (freeToMove(blocks, piece.type, piece.x, piece.y, dir)){
+    if (freeToMove(blocks, piece.model, piece.x, piece.y, dir)){
         piece.dir = dir;
         return piece;
     }
@@ -211,9 +211,9 @@ function getEmptyBlocks(piece, demo=false){
 
     if (piece){
         
-        eachBlock(piece.type, piece.x, piece.y, piece.dir, function(x, y) {
+        eachBlock(piece.model, piece.x, piece.y, piece.dir, function(x, y) {
             let index = getBlockIndex(x, y);
-            blocks[index] = getOneBlock({index:index, plain:true, color:piece.type.color, demo:demo });
+            blocks[index] = getOneBlock({index:index, plain:true, color:piece.model.color, demo:demo });
         });
     }
 
@@ -252,10 +252,10 @@ function blockIsFree(blocks, x, y, strict=false){
     return false;
 }
 
-function freeToMove(blocks, type, x, y, dir) {
+function freeToMove(blocks, model, x, y, dir) {
     let result = true;
 
-    eachBlock(type, x, y, dir, function(x, y) {
+    eachBlock(model, x, y, dir, function(x, y) {
         if ((x < 0) || (x >= boardsize.x) || (y < 0) || (y >= boardsize.y) || !blockIsFree(blocks, x, y)){
             result = false;
         }
@@ -264,11 +264,11 @@ function freeToMove(blocks, type, x, y, dir) {
     return result;
 }
 
-function eachBlock(type, x, y, dir, callback) {
+function eachBlock(model, x, y, dir, callback) {
     let bit;
     let row = 0;
     let col = 0;
-    let blocks = type.blocks[dir];
+    let blocks = model.blocks[dir];
 
     for (bit = 0x8000 ; bit > 0 ; bit = bit >> 1){
         if (blocks & bit){
@@ -284,29 +284,30 @@ function eachBlock(type, x, y, dir, callback) {
 
 // UPDATE BOARD / PIECE
 
-function getRandomPiece(lastPiece, next=false) {
-    let piecesBag = (lastPiece? lastPiece.bag : []);
-    let piece;
-
-    if (piecesBag.length == 0){
-        piecesBag = ['i','i','i','i','j','j','j','j','l','l','l','l','o','o','o','o','s','s','s','s','t','t','t','t','z','z','z','z'];
+function getNextPiece(pieces, lastpiece=null){
+    let index = 0;
+    
+    if (lastpiece){
+        index = lastpiece.index + 1;
     }
 
-    if (lastPiece && lastPiece.next){
-        piece = lastPiece.next;
-    } else {
-        let random = (Math.random() * (piecesBag.length-1));
-        let pieceType = piecesBag.splice(random, 1)[0];
-        let type = pieces[pieceType];
-
-        piece = { type: type, dir: DIR.UP, x: 3, y: 0, bag: piecesBag };
-    }
-
-    if (!next){
-        piece.next = getRandomPiece(piece, true);
+    let piece = pieces[index];
+    if (piece){
+        piece.model = PIECES[piece.piecetype];
+        piece.next = pieces[index + 1];
+        piece.next.model = PIECES[piece.next.piecetype];
     }
 
     return piece;
+}
+
+function newPiecesNeeded(pieces, piece){
+
+    if (pieces.length - piece.index < 10){
+        return true;
+    }
+
+    return false;
 }
 
 function removeLines(blocks) {
@@ -413,9 +414,9 @@ function updateBoard(staticBlocks, piece){
 
     let blocks = getBlocksCopy(staticBlocks);
 
-    eachBlock(piece.type, piece.x, piece.y, piece.dir, function(x, y) {
+    eachBlock(piece.model, piece.x, piece.y, piece.dir, function(x, y) {
         let index = getBlockIndex(x, y);
-        blocks[index] = getOneBlock({index:index, plain:true, color:piece.type.color });
+        blocks[index] = getOneBlock({index:index, plain:true, color:piece.model.color });
     });
 
     return blocks;
@@ -426,14 +427,24 @@ function updateBoard(staticBlocks, piece){
 
 const Board = (props) => {
 
-    const [piece, setPiece] = useState(getRandomPiece());
+    const [piece, setPiece] = useState(null);
     const [score, setScore] = useState(0);
     const [over, setOver] = useState(false);
 
     const [blocks, setBlocks] = useState(getEmptyBlocks());
-    const [current, setCurrent] = useState(getEmptyBlocks(piece));
+    const [current, setCurrent] = useState(null);
+    const [countdown, setCountdown] = useState(3);
 
-    const [delay, setDelay] = useState(2000);
+    const [delay, setDelay] = useState(99999999);
+
+    useEffect(() => {
+        if (!piece && props.pieces.length){
+            let newPiece = getNextPiece(props.pieces);
+            setPiece(newPiece);
+            setCurrent(getEmptyBlocks(newPiece));
+            setDelay(2000);
+        }
+    });
 
     const handleKeyPress = (event) => {
 
@@ -451,7 +462,7 @@ const Board = (props) => {
                 setScore(score); //for unknown reasons
 
                 //GET NEXT PIECE
-                newPiece = getRandomPiece(piece);
+                newPiece = getNextPiece(props.pieces, piece);
                 setPiece(newPiece);
                 // newBlocks = addStaticLine(newBlocks);
                 setBlocks(newBlocks);
@@ -469,22 +480,38 @@ const Board = (props) => {
                     setCurrent(updateBoard(newBlocks, newPiece));
                     setDelay(updateDelay(delay, lines));
                     props.dispatch({ type: 'BOARD_UPDATE', board:board });
+
+                    if (newPiecesNeeded(props.pieces, newPiece)){
+                        props.dispatch({ type: 'BOARD_NEW_PIECES' });
+                    }
                 }
 
             //FETCH MOVE
-            } else if (newPiece && newPiece.type){
+            } else if (newPiece && newPiece.model){
                 setPiece(newPiece);                
                 setCurrent(updateBoard(blocks, newPiece));
             }
         }
     }
 
-    useInterval(() => {
-        handleKeyPress({ code:arrowCodes.DOWN });
-    }, delay);
-
-    const handler = useCallback(handleKeyPress, [piece, blocks, current, over, delay, score]);
+    const handler = useCallback(handleKeyPress, [piece, blocks, current, over, delay, score, props]);
     useEventListener('keydown', handler);
+
+    if (countdown !== null){
+        useInterval(() => {
+            setCountdown(!countdown? null : countdown - 1);
+        }, 1000);
+
+        return (
+            <Container>
+                <Score>{ countdown }</Score>
+            </Container>
+        );
+    } else {
+        useInterval(() => {
+            handleKeyPress({ code:arrowCodes.DOWN });
+        }, delay);
+    }
 
     return (
         <Container>
@@ -501,7 +528,7 @@ const Board = (props) => {
             </Column>
 
             <Column>
-                <NextPiece piece={ piece.next } />
+                <NextPiece piece={ piece? piece.next : null} />
             </Column>
 
         </Container>
@@ -510,7 +537,7 @@ const Board = (props) => {
 
 const NextPiece = (props) => {
 
-    const [bagLength, setBagLength] = useState(0);
+    const [index, setIndex] = useState(0);
     const [blocks, setBlocks] = useState(null);
 
     useEffect(()=>{
@@ -518,9 +545,9 @@ const NextPiece = (props) => {
 
         if (
             (!blocks && piece) ||
-            (piece && piece.bag.length !== bagLength)
+            (piece && piece.index !== index)
         ){
-            setBagLength(piece.bag.length);
+            setIndex(piece.index);
             setBlocks(getEmptyBlocks(piece, true))
         }
     });
@@ -559,10 +586,10 @@ const Preview = (props) => {
 
 };
 
-
-
 function mapStateToProps(state) {
-    return {};
+    return {
+        pieces  : state.board.pieces
+    };
 }
 
 // export default Board;
