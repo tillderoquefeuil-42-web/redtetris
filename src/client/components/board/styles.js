@@ -104,6 +104,18 @@ export const PreviewWrapper = styled(BoardWrapper)`
     }
 `;
 
+export const BoardCover = styled.div`
+    display: ${ props => props.over? 'flex' : 'none' };
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    background: #000000c7;
+`;
 
 export const Block = styled.div`
     width: 9.8px;
@@ -156,10 +168,22 @@ export const Score = styled.h1`
     text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #e60073, 0 0 40px #e60073, 0 0 50px #e60073, 0 0 60px #e60073, 0 0 70px #e60073;
 `;
 
+export const GameOverSpan = styled(Score)`
+    font-size: ${ props => props.preview? '25px' : '35px' };
+    margin: 2px;
+`;
+
 export const PreviewScore = styled(Score)`
     font-size: 20px;
     position: absolute;
     bottom: 0;
+    width: 100%;
+    text-align: center;
+`;
+
+export const PreviewName = styled(Score)`
+    position: absolute;
+    top: -65px;
     width: 100%;
     text-align: center;
 `;

@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 
-import { Container, Column, BoardWrapper, NextPieceWrapper, PreviewWrapper, Block, PreviewBlock, Score, PreviewScore } from './styles.js';
+import { Container, Column, BoardWrapper, NextPieceWrapper, PreviewWrapper, Block, PreviewBlock, Score, PreviewScore, BoardCover, GameOverSpan, PreviewName } from './styles.js';
 
 import PIECES from './pieces.js';
 import useEventListener from '../eventListener/eventListener.js';
@@ -108,6 +108,17 @@ function rotate(blocks, piece) {
     return false;
 }
 
+function getPlayerState(players, name){
+
+    for (let i in players){
+        if (players[i].name === name){
+            return players[i];
+        }
+    }
+
+    return null;
+}
+
 
 // MANAGE BLOCKS
 
@@ -141,7 +152,7 @@ function unparseBlocks(data) {
     let blocks = [];
 
     for (let index in data){
-        blocks[index] = getOneBlock(data[index], null, true);
+        blocks[index] = getOneBlock(data[index], index, true);
     }
 
     return blocks;
@@ -446,6 +457,19 @@ const Board = (props) => {
         }
     });
 
+    useEffect(() => {
+        let player = getPlayerState(props.players, props.name);
+        let overLine = props.over_line;
+        if (player && player.overLine){
+            while (player.overLine > overLine){
+                let nBlocks = addStaticLine(blocks);
+                setBlocks(nBlocks);
+                overLine++;
+            }
+            props.dispatch({ type: 'BOARD_OVER_LINE', over_line: player.overLine});
+        }
+    });
+
     const handleKeyPress = (event) => {
 
         if (!over && Object.values(arrowCodes).indexOf(event.code) !== -1){
@@ -469,13 +493,13 @@ const Board = (props) => {
                 setScore(newScore);
 
                 if (lines > 0){
-                    props.dispatch({ type: 'BOARD_LINES_REMOVED' });
+                    props.dispatch({ type: 'BOARD_REMOVE_LINE', lines:lines });
                 }
 
                 let board = parseBoard(newBlocks, newScore);
                 if (pieceIsStuck(newBlocks, newPiece)){
                     setOver(true);
-                    props.dispatch({ type: 'BOARD_UPDATE', board:board });
+                    props.dispatch({ type: 'BOARD_UPDATE', board:board, over:true });
                 } else {
                     setCurrent(updateBoard(newBlocks, newPiece));
                     setDelay(updateDelay(delay, lines));
@@ -517,12 +541,13 @@ const Board = (props) => {
         <Container>
 
             <Column>
-                <Preview blocks={ blocks } score={ score }/>
+                <Previews name={ props.name } players={ props.players } />
             </Column>
 
             <Column>
                 <BoardWrapper>
                     { current }
+                    <GameOver over={ over } />
                 </BoardWrapper>
                 <Score>{ score }</Score>
             </Column>
@@ -559,36 +584,59 @@ const NextPiece = (props) => {
     );
 };
 
+
+const Previews = (props) => {
+
+    if (!props.players || props.players.length === 1 || !props.name){
+        return;
+    }
+
+    let previews = [];
+    for (let i in props.players){
+        let player = props.players[i];
+        if (player.name === props.name){
+            continue;
+        }
+
+        previews.push(<Preview blocks={ unparseBlocks(player.blocks) } score={ player.score } name={ player.name } over={ player.gameOver } />)
+    }
+
+    return (
+        <div>
+            { previews }
+        </div>
+    );
+
+};
+
 const Preview = (props) => {
-
-    const [blocks, setBlocks] = useState(null);
-    const [score, setScore] = useState(0);
-
-    useEffect(()=>{
-        let _blocks = props.blocks;
-        let _score = props.score;
-
-        if (_blocks !== blocks){
-            setBlocks(_blocks);
-        }
-
-        if (_score !== score){
-            setScore(_score);
-        }
-    });
 
     return (
         <PreviewWrapper>
-            { blocksToPreview(blocks) }
-            <PreviewScore>{ score }</PreviewScore>
+            <PreviewName>{ props.name }</PreviewName>
+            { blocksToPreview(props.blocks) }
+            <GameOver over={ props.over } preview={ true } />
+            <PreviewScore>{ props.score }</PreviewScore>
         </PreviewWrapper>
     );
 
 };
 
+const GameOver = (props) => {
+    return (
+        <BoardCover over={ props.over }>
+            <GameOverSpan preview={ props.preview } >Game</GameOverSpan>
+            <GameOverSpan preview={ props.preview } >Over</GameOverSpan>
+        </BoardCover>
+    );
+}
+
 function mapStateToProps(state) {
     return {
-        pieces  : state.board.pieces
+        pieces      : state.board.pieces,
+        players     : state.board.players,
+        over_line   : state.board.over_line,
+        name        : state.login.name
     };
 }
 

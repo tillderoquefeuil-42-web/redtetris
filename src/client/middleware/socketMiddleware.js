@@ -50,9 +50,16 @@ export const socketMiddleware = store => next => action => {
         case BOARD_ACTIONS.NEW_PIECES:
             socketEmission(action.type, data);
             break;
-        // case BOARD_ACTIONS.DROP_PIECE:
-        //     socketEmission(action.type, action.board);
-        //     break;
+        case BOARD_ACTIONS.REMOVE_LINE:
+            data.board.lines = action.lines;
+            socketEmission(action.type, data);
+            break;
+        case BOARD_ACTIONS.UPDATE:
+            data.board.score = action.board.score;
+            data.board.blocks = action.board.blocks;
+            data.board.game_over = action.over? true : false;
+            socketEmission(action.type, data);
+            break;
     }
 
     return next(action);
