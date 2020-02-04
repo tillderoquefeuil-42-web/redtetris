@@ -48,7 +48,6 @@ export const socketMiddleware = store => next => action => {
             socketEmission(action.type, data);
             break;
         case BOARD_ACTIONS.NEW_PIECES:
-            data.board.index++;
             socketEmission(action.type, data);
             break;
         // case BOARD_ACTIONS.DROP_PIECE:

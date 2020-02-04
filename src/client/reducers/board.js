@@ -29,14 +29,13 @@ const reducer = (state = initialState , action) => {
     switch(action.type){
         case BOARD_ACTIONS.NEXT_PIECES:
             data.pieces = data.pieces.concat(action.pieces);
+            data.index = action.index;
             return data;
         case BOARD_ACTIONS.UPDATE:
             data.score = action.board.score;
             data.blocks = action.board.blocks;
             return data;
         case BOARD_ACTIONS.NEW_PIECES:
-            data.index = data.index + 1;
-            return data;
         case BOARD_ACTIONS.REMOVE_LINE:
         default: 
             return state

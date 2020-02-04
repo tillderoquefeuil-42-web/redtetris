@@ -43,6 +43,7 @@ function getSliceHash(roomName, index){
 exports.getPiecesSet = (roomName, index) => {
     return {
         type    : BOARD_ACTIONS.NEXT_PIECES,
-        pieces  : generatePiecesSet(roomName, index)
+        pieces  : generatePiecesSet(roomName, index),
+        index   : index + 1
     };
 }

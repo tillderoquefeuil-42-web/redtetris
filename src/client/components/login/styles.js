@@ -115,3 +115,11 @@ export const Button = styled.button`
         outline: none;
     }
 `;
+
+export const Span = styled.span`
+    cursor: pointer;
+
+    :hover, :active {
+        text-decoration: underline;
+    }
+`;

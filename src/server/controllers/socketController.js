@@ -1,6 +1,9 @@
 const socketServer = require('socket.io');
 
-const pieces = require('./pieces/lib.js');
+const lib = {
+    pieces  : require('./pieces/lib.js'),
+    rooms   : require('./rooms/lib.js')
+};
 
 const LOGIN_ACTIONS = {
     UPDATE_NAME   : 'LOGIN_UPDATE_NAME',
@@ -18,39 +21,6 @@ const BOARD_ACTIONS = {
 };
 
 
-const rooms = {
-    // GENERIC
-    getRoomName : function(base, id){
-        return base + '_' + id;
-    },
-
-    joinRoom        : function(socket, roomName){
-        socket.join(roomName);
-    },
-
-    leaveRoom       : function(socket, roomName){
-        socket.leave(roomName);
-    },
-
-    // SPECIFIC
-    getPlayerRoom   : function(player){
-        return this.getRoomName('player', player);
-    },
-
-    joinPlayerRoom  : function(socket, player){
-        let roomName = this.getPlayerRoom(player)
-        this.joinRoom(socket, roomName);
-    },
-
-    getGameRoom   : function(game){
-        return this.getRoomName('game', game);
-    },
-
-    joinGameRoom  : function(socket, game){
-        let roomName = this.getGameRoom(game)
-        this.joinRoom(socket, roomName);
-    }
-};
 
 // SOCKET EMISSION
 // io.sockets.in(<room>).emit('ACTION', <data>);
@@ -64,42 +34,44 @@ module.exports = function (app, server) {
 
     let connections = [];
     io.on('connection', function (socket) {
-        console.log(`connected to socket! (${socket.id})`);
-
         connections.push(socket);
 
         socket.on('disconnect', () => {
-            console.log(`disconnected (${socket.id})`);
+            lib.rooms.socketLeave(socket);
         });
 
         socket.on(LOGIN_ACTIONS.UPDATE_NAME, (data) => {
-            console.log('UPDATE_NAME');
-            rooms.joinPlayerRoom(socket, data.login.name);
+            let playerRoom = lib.rooms.joinPlayerRoom(socket, data.login.name);
+
+            io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.getGameRooms());
         });
         
         socket.on(LOGIN_ACTIONS.UPDATE_ROOM, (data) => {
-            console.log('UPDATE_ROOM');
-            rooms.joinGameRoom(socket, data.login.room);
+            let playerRoom = lib.rooms.getPlayerRoom(data.login.name);
+            let gameRoom = lib.rooms.joinGameRoom(socket, data.login.room);
+
+            io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.roomOwner(socket, gameRoom));
         });
         
         socket.on(LOGIN_ACTIONS.URL_LOGGING, (data) => {
-            console.log('URL_LOGGING');
-            rooms.joinPlayerRoom(socket, data.login.name);
-            rooms.joinGameRoom(socket, data.login.room);
+            let playerRoom = lib.rooms.joinPlayerRoom(socket, data.login.name);
+            let gameRoom = lib.rooms.joinGameRoom(socket, data.login.room);
+
+            io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.roomOwner(socket, gameRoom));
         });
 
         socket.on(LOGIN_ACTIONS.START, (data) => {
-            console.log('START');
-            let gameRoom = rooms.getGameRoom(data.login.room);
-
-            io.sockets.in(gameRoom).emit('ACTION', pieces.getPiecesSet(gameRoom, 0));
+            let gameRoom = lib.rooms.getGameRoom(data.login.room);
+            if (gameRoom.isOwner(socket)){
+                io.sockets.in(gameRoom.label).emit('ACTION', lib.rooms.startGame());
+                io.sockets.in(gameRoom.label).emit('ACTION', lib.pieces.getPiecesSet(gameRoom.label, 0));
+            }
         });
 
         socket.on(BOARD_ACTIONS.NEW_PIECES, (data) => {
-            console.log('NEW_PIECES', data.board.index);
-            let gameRoom = rooms.getGameRoom(data.login.room);
+            let gameRoom = lib.rooms.getGameRoom(data.login.room);
 
-            io.sockets.in(gameRoom).emit('ACTION', pieces.getPiecesSet(gameRoom, data.board.index));
+            io.sockets.in(gameRoom.label).emit('ACTION', lib.pieces.getPiecesSet(gameRoom.label, data.board.index));
         });
 
     });

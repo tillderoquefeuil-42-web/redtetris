@@ -3,14 +3,19 @@ export const LOGIN_ACTIONS = {
   UPDATE_ROOM   : 'LOGIN_UPDATE_ROOM',
   PLAYER_LOGGED : 'LOGIN_PLAYER_LOGGED',
   URL_LOGGING   : 'LOGIN_URL_LOGGING',
-  START         : 'LOGIN_START'
+  START         : 'LOGIN_START',
+  GET_START     : 'LOGIN_GET_START',
+  GET_ROOMS     : 'LOGIN_GET_ROOMS',
+  GET_OWNER     : 'LOGIN_GET_OWNER'
 };
 
 const initialState = {
-  name    : "",
-  room    : "",
-  logged  : false,
-  start   : false
+  name          : "",
+  room          : "",
+  logged        : false,
+  start         : false,
+  active_rooms  : [],
+  owner         : false
 };
 
 export const getLoginStateCopy = (state) => {
@@ -51,12 +56,19 @@ const reducer = (state = initialState , action) => {
       data.logged = true;
       return data;
     case LOGIN_ACTIONS.START:
+    case LOGIN_ACTIONS.GET_START:
       data.start = true;
       return data;
     case LOGIN_ACTIONS.URL_LOGGING:
       data.name = action.data.name;
       data.room = action.data.room;
       data.logged = true;
+      return data;
+    case LOGIN_ACTIONS.GET_ROOMS:
+      data.active_rooms = action.rooms;
+      return data;
+    case LOGIN_ACTIONS.GET_OWNER:
+      data.owner = action.owner;
       return data;
     default:
       return state

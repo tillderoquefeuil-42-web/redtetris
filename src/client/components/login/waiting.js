@@ -27,7 +27,12 @@ const Waiting = (props) => {
             <Wrapper>
                 <h2>{ props.name }</h2>
                 <h2>{ props.room }</h2>
-                <Button onClick={ () => start(props) }>Start</Button>
+                {
+                    props.owner?
+                    <Button onClick={ () => start(props) }>Start</Button>
+                    :
+                    <span>Waiting for owner to start</span>
+                }
             </Wrapper>
         </Container>
     );
@@ -38,6 +43,7 @@ function mapStateToProps(state) {
     return {
         name    : state.login.name,
         room    : state.login.room,
+        owner   : state.login.owner
     };
 }
 

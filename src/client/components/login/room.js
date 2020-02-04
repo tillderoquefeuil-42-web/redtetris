@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import useEventListener from '../eventListener/eventListener.js';
 import { checkInput } from '../../helpers/utils';
-import { Wrapper, TextInput, Button } from './styles.js';
+import { Wrapper, TextInput, Button, Span } from './styles.js';
 
 
 function updateRoom(props, value, force=false) {
@@ -47,6 +47,11 @@ const Room = (props) => {
                 placeholder="The room you wanna enter"
                 onChange={ event => roomSetting({props, event}) }
             />
+
+            { props.active_rooms.map((value, index) => {
+                return <Span key={ index } onClick={ () => roomSetting({ props, event:{target:{value:value}}, force:true }) } >{ value }</Span>
+            }) }
+
             <Button onClick={ () => roomSetting({props, force:true}) }>Validate Room</Button>
         </Wrapper>
     );
@@ -54,7 +59,8 @@ const Room = (props) => {
 
 function mapStateToProps(state) {
     return {
-        room    : state.login.room
+        room            : state.login.room,
+        active_rooms    : state.login.active_rooms
     };
 }
 
