@@ -11,42 +11,58 @@ const BOARD_ACTIONS = {
 let _players = {
     collection  : {},
 
-    pushPlayer  : (player) => {
+    pushPlayer      : (player) => {
         let _this = _players;
 
         _this.collection[player.id] = player;
     },
 
-    getById     : (socket) => {
+    getById         : (socket) => {
         let _this = _players;
 
         return _this.collection[socket.id];
-    }
+    },
+
+    deletePlayer    : (player) => {
+        let _this = _players;
+
+        if (_this.collection[player.id]){
+            delete _this.collection[player.id];
+        }
+    },
 
 };
 
 
-exports.addPlayer = (socket, playerRoom, gameRoom) => {
-    let player = new Player({ socket, name:playerRoom.name, gameRoom });
+function addPlayer(socket, playerRoom, gameRoom) {
+    player = new Player({ socket, name:playerRoom.name, gameRoom });
     _players.pushPlayer(player);
 
     return player;
 };
 
-exports.updatePlayer = (socket, board) => {
+
+exports.updatePlayer = (socket, playerRoom, gameRoom, board) => {
+
     let player = _players.getById(socket);
 
     if (!player){
-        console.warn('player not found');
-        return null;
+        return addPlayer(socket, playerRoom, gameRoom);
     }
 
-    player.gameOver = board.game_over;
-    player.blocks = board.blocks;
-    player.score = board.score;
+    player.setName(playerRoom.name);
+    player.setGameRoom(gameRoom);
+    player.updateBoard(board);
 
     return player;
 };
+
+exports.delete = (socket) => {
+    let player = _players.getById(socket);
+
+
+};
+
 
 exports.getGamePlayers = (gameRoom) => {
 

@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 
-import { Container, Wrapper, Button } from './styles.js';
+import { Wrapper, Button } from './styles.js';
 
 import useEventListener from '../eventListener/eventListener.js';
 
@@ -9,6 +9,11 @@ import useEventListener from '../eventListener/eventListener.js';
 function start(props) {
     props.dispatch({ type: 'LOGIN_START' });
 }
+
+function backToRoom(props) {
+    props.dispatch({ type: 'LOGIN_UPDATE_ROOM', login_room:'' });
+}
+
 
 const Waiting = (props) => {
 
@@ -21,20 +26,19 @@ const Waiting = (props) => {
     const handler = useCallback(handleKeyPress, [props]);
     useEventListener('keydown', handler);
 
-
     return (
-        <Container>
-            <Wrapper>
-                <h2>{ props.name }</h2>
-                <h2>{ props.room }</h2>
-                {
-                    props.owner?
-                    <Button onClick={ () => start(props) }>Start</Button>
-                    :
-                    <span>Waiting for owner to start</span>
-                }
-            </Wrapper>
-        </Container>
+        <Wrapper>
+            <h2>{ props.name }</h2>
+            <h2>{ props.room }</h2>
+            {
+                props.owner?
+                <Button onClick={ () => start(props) }>Start</Button>
+                :
+                <span>Waiting for owner to start</span>
+            }
+
+            <Button onClick={ () => backToRoom(props) }>Return</Button>
+        </Wrapper>
     );
 };
 

@@ -22,7 +22,7 @@ function nameSetting({ props, event, force }){
     if ((value && checkInput(value)) || !value){
         updateName(props, value, force);
         if (force){
-            props.setName();
+            props.dispatch({ type: 'LOGIN_SET_NAME' });
         }
     }
 }

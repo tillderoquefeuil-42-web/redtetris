@@ -9,7 +9,8 @@ const lib = {
 const LOGIN_ACTIONS = {
     UPDATE_NAME   : 'LOGIN_UPDATE_NAME',
     UPDATE_ROOM   : 'LOGIN_UPDATE_ROOM',
-    PLAYER_LOGGED : 'LOGIN_PLAYER_LOGGED',
+    SET_NAME      : 'LOGIN_SET_NAME',
+    SET_ROOM      : 'LOGIN_SET_ROOM',
     URL_LOGGING   : 'LOGIN_URL_LOGGING',
     START         : 'LOGIN_START'
 };
@@ -40,9 +41,10 @@ module.exports = function (app, server) {
 
         socket.on('disconnect', () => {
             lib.rooms.socketLeave(socket);
+            lib.players.delete(socket);
         });
 
-        socket.on(LOGIN_ACTIONS.UPDATE_NAME, (data) => {
+        socket.on(LOGIN_ACTIONS.SET_NAME, (data) => {
             let playerRoom = lib.rooms.joinPlayerRoom(socket, data.login.name);
 
             if (playerRoom){
@@ -50,10 +52,10 @@ module.exports = function (app, server) {
             }
         });
         
-        socket.on(LOGIN_ACTIONS.UPDATE_ROOM, (data) => {
+        socket.on(LOGIN_ACTIONS.SET_ROOM, (data) => {
             let playerRoom = lib.rooms.getPlayerRoom(data.login.name);
             let gameRoom = lib.rooms.joinGameRoom(socket, data.login.room);
-            lib.players.addPlayer(socket, playerRoom, gameRoom);
+            lib.players.updatePlayer(socket, playerRoom, gameRoom);
 
             if (playerRoom && gameRoom){
                 io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.roomOwner(socket, gameRoom));
@@ -64,7 +66,7 @@ module.exports = function (app, server) {
             let playerRoom = lib.rooms.joinPlayerRoom(socket, data.login.name);
             let gameRoom = lib.rooms.joinGameRoom(socket, data.login.room);
 
-            lib.players.addPlayer(socket, playerRoom, gameRoom);
+            lib.players.updatePlayer(socket, playerRoom, gameRoom);
 
             if (playerRoom && gameRoom){
                 io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.roomOwner(socket, gameRoom));
@@ -89,10 +91,11 @@ module.exports = function (app, server) {
         });
 
         socket.on(BOARD_ACTIONS.UPDATE, (data) => {
+            let playerRoom = lib.rooms.getPlayerRoom(data.login.name);
             let gameRoom = lib.rooms.getGameRoom(data.login.room);
 
-            lib.players.updatePlayer(socket, data.board);
             if (gameRoom){
+                lib.players.updatePlayer(socket, playerRoom, gameRoom, data.board);
                 io.sockets.in(gameRoom.label).emit('ACTION', lib.players.getGamePlayers(gameRoom));
             }
         });

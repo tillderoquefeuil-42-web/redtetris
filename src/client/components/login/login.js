@@ -3,24 +3,26 @@ import { connect } from 'react-redux';
 
 import Name from './Name.js';
 import Room from './Room.js';
+import Waiting from './Waiting.js';
+
 import { Container } from './styles.js';
 
+function getLoginComponent(props) {
 
-function playerLogged(props) {
-    props.dispatch({ type: 'LOGIN_PLAYER_LOGGED' });
+    if (props.name_set && props.room_set){
+        return <Waiting />;
+    } else if (props.name_set){
+        return <Room />
+    }
+
+    return <Name />;
 }
 
 const Login = (props) => {
 
-    const [named, setNamed] = useState(false);
-
     return (
         <Container>
-            { named? 
-                <Room setRoom={ () => playerLogged(props) } /> 
-                : 
-                <Name setName={ () => setNamed(true) } /> 
-            }
+            { getLoginComponent(props) }
         </Container>
     );
 };
@@ -28,9 +30,8 @@ const Login = (props) => {
 
 function mapStateToProps(state) {
     return {
-        name    : state.login.name,
-        room    : state.login.room,
-        logged  : state.login.logged
+        name_set    : state.login.name_set,
+        room_set    : state.login.room_set
     };
 }
 

@@ -27,17 +27,11 @@ export const socketMiddleware = store => next => action => {
     socket.off('ACTION').on('ACTION', store.dispatch);
 
     switch (action.type){
-        case LOGIN_ACTIONS.UPDATE_NAME:
-            if (action.login_force){
-                data.login.name = action.login_name;
-                socketEmission(action.type, data);
-            }
+        case LOGIN_ACTIONS.SET_NAME:
+            socketEmission(action.type, data);
             break;
-        case LOGIN_ACTIONS.UPDATE_ROOM:
-            if (action.login_force){
-                data.login.room = action.login_room;
-                socketEmission(action.type, data);
-            }
+        case LOGIN_ACTIONS.SET_ROOM:
+            socketEmission(action.type, data);
             break;
         case LOGIN_ACTIONS.URL_LOGGING:
             data.login.name = action.data.name;

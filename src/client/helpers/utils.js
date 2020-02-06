@@ -14,7 +14,7 @@ export const parseHash = (hash) => {
 }
 
 export const getHashFromProps = (props) => {
-    return '/#' + (props.logged? `${props.room}[${props.name}]` : '');  
+    return '/#' + (props.room_set? `${props.room}[${props.name}]` : '');  
 }
 
 export const checkInput = (value) => {

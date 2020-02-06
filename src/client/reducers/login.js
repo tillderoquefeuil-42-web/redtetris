@@ -1,7 +1,8 @@
 export const LOGIN_ACTIONS = {
   UPDATE_NAME   : 'LOGIN_UPDATE_NAME',
   UPDATE_ROOM   : 'LOGIN_UPDATE_ROOM',
-  PLAYER_LOGGED : 'LOGIN_PLAYER_LOGGED',
+  SET_NAME      : 'LOGIN_SET_NAME',
+  SET_ROOM      : 'LOGIN_SET_ROOM',
   URL_LOGGING   : 'LOGIN_URL_LOGGING',
   START         : 'LOGIN_START',
   GET_START     : 'LOGIN_GET_START',
@@ -12,6 +13,8 @@ export const LOGIN_ACTIONS = {
 const initialState = {
   name          : "",
   room          : "",
+  name_set      : false,
+  room_set      : false,
   logged        : false,
   start         : false,
   active_rooms  : [],
@@ -46,15 +49,23 @@ const reducer = (state = initialState , action) => {
   let data = getLoginStateCopy(state);
 
   switch(action.type){
+    // EDIT NAME | ROOM
     case LOGIN_ACTIONS.UPDATE_NAME:
       data.name = action.login_name || (action.login_force? getDefaultName() : '');
+      data.name_set = false;
       return data;
     case LOGIN_ACTIONS.UPDATE_ROOM:
       data.room = action.login_room || (action.login_force? getDefaultRoom() : '');
+      data.room_set = false;
       return data;
-    case LOGIN_ACTIONS.PLAYER_LOGGED:
-      data.logged = true;
+    // SET NAME | ROOM
+    case LOGIN_ACTIONS.SET_NAME:
+      data.name_set = true;
       return data;
+    case LOGIN_ACTIONS.SET_ROOM:
+      data.room_set = true;
+      return data;
+
     case LOGIN_ACTIONS.START:
     case LOGIN_ACTIONS.GET_START:
       data.start = true;
@@ -62,6 +73,8 @@ const reducer = (state = initialState , action) => {
     case LOGIN_ACTIONS.URL_LOGGING:
       data.name = action.data.name;
       data.room = action.data.room;
+      data.name_set = true;
+      data.room_set = true;
       data.logged = true;
       return data;
     case LOGIN_ACTIONS.GET_ROOMS:

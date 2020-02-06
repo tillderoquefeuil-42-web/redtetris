@@ -3,12 +3,16 @@ const Room = require('./Room.js');
 const LOGIN_ACTIONS = {
     UPDATE_NAME   : 'LOGIN_UPDATE_NAME',
     UPDATE_ROOM   : 'LOGIN_UPDATE_ROOM',
-    PLAYER_LOGGED : 'LOGIN_PLAYER_LOGGED',
     URL_LOGGING   : 'LOGIN_URL_LOGGING',
     START         : 'LOGIN_START',
     GET_START     : 'LOGIN_GET_START',
     GET_ROOMS     : 'LOGIN_GET_ROOMS',
     GET_OWNER     : 'LOGIN_GET_OWNER'
+};
+
+const TYPES = {
+    GAME    : 'game',
+    PLAYER  : 'player'
 };
 
 let _rooms = {
@@ -39,6 +43,14 @@ let _rooms = {
         _this.collection[room.type][room.name] = room;
     },
 
+    deleteRoom      : (room) => {
+        let _this = _rooms;
+
+        if (_this.collection[room.type] && _this.collection[room.type][room.name]){
+            delete _this.collection[room.type][room.name];
+        }
+    },
+
     getSocketRooms  : (socket) => {
         let _this = _rooms;
         let data = [];
@@ -50,6 +62,21 @@ let _rooms = {
                 if (rooms[j].isClient(socket)){
                     data.push(rooms[j]);
                 }
+            }
+        }
+
+        return data;
+    },
+
+    getSocketRoomsByType    : (socket, type) => {
+        let _this = _rooms;
+        let data = [];
+
+        let socketRooms = _this.getSocketRooms(socket);
+
+        for (let i in socketRooms){
+            if (socketRooms[i].type === type){
+                data.push(socketRooms[i]);
             }
         }
 
@@ -66,6 +93,10 @@ function joinRoom(socket, room) {
 function leaveRoom(socket, room) {
     room.removeClient(socket);
     socket.leave(room.label);
+
+    if (!room.clients.length){
+        _rooms.deleteRoom(room);
+    }
 };
 
 function getOpenGameRooms() {
@@ -94,13 +125,18 @@ exports.socketLeave = (socket) => {
 };
 
 exports.getPlayerRoom = (name, socket=null) => {
-    let type = 'player';
+    let type = TYPES.PLAYER;
     let room = _rooms.getRoom(type, name, socket);
 
     return room;
 };
 
 exports.joinPlayerRoom = (socket, name) => {
+    let rooms = _rooms.getSocketRoomsByType(socket, TYPES.PLAYER);
+    for (let i in rooms){
+        leaveRoom(socket, rooms[i]);
+    }
+
     let room = this.getPlayerRoom(name, socket);
     joinRoom(socket, room);
 
@@ -108,13 +144,18 @@ exports.joinPlayerRoom = (socket, name) => {
 };
 
 exports.getGameRoom = (name, socket=null) => {
-    let type = 'game';
+    let type = TYPES.GAME;
     let room = _rooms.getRoom(type, name, socket);
 
     return room;
 };
 
 exports.joinGameRoom = (socket, name) => {
+    let rooms = _rooms.getSocketRoomsByType(socket, TYPES.GAME);
+    for (let i in rooms){
+        leaveRoom(socket, rooms[i]);
+    }
+
     let room = this.getGameRoom(name, socket);
     joinRoom(socket, room);
 

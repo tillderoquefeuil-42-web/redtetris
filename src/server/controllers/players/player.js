@@ -1,13 +1,17 @@
 class Player {
 
-    constructor({ name, socket, gameRoom }) {
+    constructor({ name, socket, gameRoom, board }) {
         this.name = name;
         this.id = socket.id;
         this.gameRoom = gameRoom;
         this.score = 0;
         this.blocks = [];
         this.gameOver = false;
-        this.overLine = 0
+        this.overLine = 0;
+
+        if (board) {
+            this.updateBoard(board);
+        }
     }
 
     get light() {
@@ -20,9 +24,25 @@ class Player {
         };
     }
 
+    setName(name) {
+        this.name = name;
+    }
+
+    setGameRoom(gameRoom) {
+        this.gameRoom = gameRoom;
+    }
+
     addOverline(socket, lines) {
         if (socket.id !== this.id){
             this.overLine += lines;
+        }
+    }
+
+    updateBoard(board) {
+        if (board){
+            this.gameOver = board.game_over;
+            this.blocks = board.blocks;
+            this.score = board.score;
         }
     }
 };

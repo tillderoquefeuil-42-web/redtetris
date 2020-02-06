@@ -5,16 +5,13 @@ import { push } from 'connected-react-router'
 import { Container, Title } from './styles.js';
 import Board from '../components/board/board';
 import Login from '../components/login/login';
-import Waiting from '../components/login/waiting';
 
 import { parseHash, getHashFromProps } from '../helpers/utils';
 
 function getRoute(props) {
 
-  if (props.logged && props.start){
+  if (props.start){
     return <Board />
-  } else if (props.logged){
-    return <Waiting />
   }
 
   return <Login />
@@ -42,11 +39,13 @@ const App = (props) => {
 }
 
 const mapStateToProps = state => ({
-  name    : state.login.name,
-  room    : state.login.room,
-  logged  : state.login.logged,
-  start   : state.login.start,
-  hash    : state.router.location.hash,
+  name      : state.login.name,
+  room      : state.login.room,
+  name_set  : state.login.name_set,
+  room_set  : state.login.room_set,
+  logged    : state.login.logged,
+  start     : state.login.start,
+  hash      : state.router.location.hash,
 });
 
 export default connect(mapStateToProps)(App);

@@ -588,7 +588,7 @@ const NextPiece = (props) => {
 const Previews = (props) => {
 
     if (!props.players || props.players.length === 1 || !props.name){
-        return;
+        return null;
     }
 
     let previews = [];

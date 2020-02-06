@@ -10,6 +10,10 @@ function updateRoom(props, value, force=false) {
     props.dispatch({ type: 'LOGIN_UPDATE_ROOM', login_room:value, login_force:force });
 }
 
+function backToName(props) {
+    props.dispatch({ type: 'LOGIN_UPDATE_NAME', login_name:'' });
+}
+
 function roomSetting({ props, event, force }){
     let value;
 
@@ -22,7 +26,7 @@ function roomSetting({ props, event, force }){
     if ((value && checkInput(value)) || !value){
         updateRoom(props, value, force);
         if (force){
-            props.setRoom();
+            props.dispatch({ type: 'LOGIN_SET_ROOM' });
         }
     }
 }
@@ -53,6 +57,8 @@ const Room = (props) => {
             }) }
 
             <Button onClick={ () => roomSetting({props, force:true}) }>Validate Room</Button>
+
+            <Button onClick={ () => backToName(props) }>Return</Button>
         </Wrapper>
     );
 }
