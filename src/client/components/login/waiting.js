@@ -1,7 +1,8 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 
-import { Wrapper, Button } from './styles.js';
+import { Wrapper } from './styles.js';
+import { Button } from '../styles.js';
 
 import useEventListener from '../eventListener/eventListener.js';
 

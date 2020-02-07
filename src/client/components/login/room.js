@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 
 import useEventListener from '../eventListener/eventListener.js';
 import { checkInput } from '../../helpers/utils';
-import { Wrapper, TextInput, Button, Span } from './styles.js';
-
+import { Wrapper, Span } from './styles.js';
+import { Button, TextInput } from '../styles.js';
 
 function updateRoom(props, value, force=false) {
     props.dispatch({ type: 'LOGIN_UPDATE_ROOM', login_room:value, login_force:force });

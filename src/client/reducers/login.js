@@ -57,6 +57,7 @@ const reducer = (state = initialState , action) => {
     case LOGIN_ACTIONS.UPDATE_ROOM:
       data.room = action.login_room || (action.login_force? getDefaultRoom() : '');
       data.room_set = false;
+      data.start = false;
       return data;
     // SET NAME | ROOM
     case LOGIN_ACTIONS.SET_NAME:

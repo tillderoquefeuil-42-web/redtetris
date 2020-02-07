@@ -28,6 +28,17 @@ export const getBoardStateCopy = (state) => {
     return data;
 }
 
+const reset = (data) => {
+    const resetIndex = ['score', 'blocks', 'players', 'game_over', 'over_line'];
+
+    for (let i in resetIndex){
+        let index = resetIndex[i];
+        data[index] = initialState[index];
+    }
+
+    return data;
+}
+
 const reducer = (state = initialState , action) => {
     let data = getBoardStateCopy(state);
 
@@ -35,6 +46,9 @@ const reducer = (state = initialState , action) => {
         case BOARD_ACTIONS.NEXT_PIECES:
             data.pieces = data.pieces.concat(action.pieces);
             data.index = action.index;
+            if (action.index === 1){
+                data = reset(data);
+            }
             return data;
         case BOARD_ACTIONS.UPDATE:
             data.score = action.board.score;

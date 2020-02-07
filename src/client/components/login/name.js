@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 
 import useEventListener from '../eventListener/eventListener.js';
 import { checkInput } from '../../helpers/utils';
-import { Wrapper, TextInput, Button } from './styles.js';
-
+import { Wrapper } from './styles.js';
+import { Button, TextInput } from '../styles.js';
 
 function updateName(props, value, force=false) {
     props.dispatch({ type: 'LOGIN_UPDATE_NAME', login_name:value, login_force:force });
