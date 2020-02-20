@@ -11,7 +11,8 @@ import { parseHash, getHashFromProps } from '../helpers/utils';
 function getRoute(props) {
 
   if (props.start){
-    return <Board />
+    console.log(props.unique_id);
+    return <Board key={ props.unique_id } />
   }
 
   return <Login />
@@ -45,6 +46,7 @@ const mapStateToProps = state => ({
   room_set  : state.login.room_set,
   logged    : state.login.logged,
   start     : state.login.start,
+  unique_id : state.login.unique_id,
   hash      : state.router.location.hash,
 });
 

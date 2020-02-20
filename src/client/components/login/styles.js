@@ -14,7 +14,7 @@ export const Wrapper = styled.div`
     justify-content: space-around;
     align-items: center;
     padding: 50px;
-    height: 150px;
+    padding: 20px 50px;
     background: #210000;
     border-radius: 3px;
     color: #fff;

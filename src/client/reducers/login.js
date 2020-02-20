@@ -18,7 +18,8 @@ const initialState = {
   logged        : false,
   start         : false,
   active_rooms  : [],
-  owner         : false
+  owner         : false,
+  unique_id     : null
 };
 
 export const getLoginStateCopy = (state) => {
@@ -40,8 +41,13 @@ function getDefaultRoom() {
   return "room-" + randomize(3);
 }
 
+
 function randomize(length=5) {
   return (Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, length));
+}
+
+const getUniqueId = (state) => {
+  return state.name + '_' + state.room + '_' + randomize();
 }
 
 const reducer = (state = initialState , action) => {
@@ -65,6 +71,7 @@ const reducer = (state = initialState , action) => {
       return data;
     case LOGIN_ACTIONS.SET_ROOM:
       data.room_set = true;
+      data.unique_id = getUniqueId(state);
       return data;
 
     case LOGIN_ACTIONS.START:
@@ -74,6 +81,7 @@ const reducer = (state = initialState , action) => {
     case LOGIN_ACTIONS.URL_LOGGING:
       data.name = action.data.name;
       data.room = action.data.room;
+      data.unique_id = getUniqueId(action.data);
       data.name_set = true;
       data.room_set = true;
       data.logged = true;

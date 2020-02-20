@@ -10,6 +10,16 @@ const LOGIN_ACTIONS = {
     GET_OWNER     : 'LOGIN_GET_OWNER'
 };
 
+const BOARD_ACTIONS = {
+    RESET       : 'BOARD_RESET',
+    NEXT_PIECES : 'BOARD_NEXT_PIECES',
+    NEW_PIECES  : 'BOARD_NEW_PIECES',
+    UPDATE      : 'BOARD_UPDATE',
+    GET_UPDATE  : 'BOARD_GET_UPDATE',
+    REMOVE_LINE : 'BOARD_REMOVE_LINE',
+    OVER_LINE   : 'BOARD_OVER_LINE'
+};
+
 const TYPES = {
     GAME    : 'game',
     PLAYER  : 'player'
@@ -191,5 +201,11 @@ exports.roomOwner = (socket, gameRoom) => {
 exports.startGame = () => {
     return {
         type    : LOGIN_ACTIONS.GET_START
+    };
+}
+
+exports.resetBoard = () => {
+    return {
+        type    : BOARD_ACTIONS.RESET
     };
 }

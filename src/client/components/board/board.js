@@ -269,32 +269,18 @@ const Board = (props) => {
     const [current, setCurrent] = useState(null);
     const [countdown, setCountdown] = useState(3);
 
-    const [delay, setDelay] = useState(99999999);
+    const [delay, setDelay] = useState(2000);
 
-    // const reset = () => {
-    //     setPiece(null);
-    //     setScore(0);
-    //     setOver(false);
-    //     setBlocks(utils.getEmptyBlocks());
-    //     setCurrent(null);
-    //     setCountdown(3);
-    //     setDelay(99999999);
-    // };
-
-    // if (over && !props.blocks){
-    //     console.log('here')
-    //     reset();
-    // }
-
+    // MANAGE FIRST PIECE
     useEffect(() => {
         if (!piece && props.pieces.length){
             let newPiece = getNextPiece(props.pieces);
             setPiece(newPiece);
             setCurrent(utils.getEmptyBlocks(newPiece));
-            setDelay(2000);
         }
     });
 
+    // MANAGE OVERLINE
     useEffect(() => {
         let player = utils.getPlayerState(props.players, props.name);
         let overLine = props.over_line;
@@ -392,8 +378,8 @@ const Board = (props) => {
             <Column>
                 {
                     over?
-                    // <Button onClick={ () => backToRoom(props) }>Change Room</Button>
-                    <NextPiece piece={ piece? piece.next : null} />
+                    <Button onClick={ () => backToRoom(props) }>Change Room</Button>
+                    // <NextPiece piece={ piece? piece.next : null} />
                     :
                     <NextPiece piece={ piece? piece.next : null} />
                 }

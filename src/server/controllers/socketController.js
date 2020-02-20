@@ -76,6 +76,7 @@ module.exports = function (app, server) {
         socket.on(LOGIN_ACTIONS.START, (data) => {
             let gameRoom = lib.rooms.getGameRoom(data.login.room);
             if (gameRoom && gameRoom.isOwner(socket)){
+                io.sockets.in(gameRoom.label).emit('ACTION', lib.rooms.resetBoard());
                 io.sockets.in(gameRoom.label).emit('ACTION', lib.rooms.startGame());
                 io.sockets.in(gameRoom.label).emit('ACTION', lib.pieces.getPiecesSet(gameRoom.label, 0));
                 io.sockets.in(gameRoom.label).emit('ACTION', lib.players.getGamePlayers(gameRoom));
