@@ -8,6 +8,9 @@ const utils = {
     BOARDSIZE : { x:10, y:20 }
 };
 
+const defaultBlock = { plain : 0 };
+
+
 utils.getPlayerState = (players, name) => {
 
     for (let i in players){
@@ -34,124 +37,198 @@ utils.getOtherPlayers = (players, name) => {
 
 // MANAGE BLOCKS
 
-utils.parseBoard = (blocks, score) => {
-    let board = {
-        score   : score,
-        blocks  : utils.parseBlocks(blocks)
-    };
+// utils.parseBoard = (blocks, score) => {
+//     let board = {
+//         score   : score,
+//         blocks  : utils.parseBlocks(blocks)
+//     };
+
+//     return board;
+// };
+
+// utils.parseBlocks = (blocks) => {
+//     let data = [];
+//     let block, index;
+
+//     for (let i in blocks){
+//         block = blocks[i];
+//         index = parseInt(block.key);
+
+//         data[index] = {
+//             bstatic : block.props.bstatic,
+//             plain   : block.props.plain,
+//             key     : index
+//         };
+//     }
+
+//     return data;
+// };
+
+// utils.unparseBlocks = (data) => {
+//     let blocks = [];
+
+//     for (let index in data){
+//         blocks[index] = utils.getOneBlock(data[index], index, true);
+//     }
+
+//     return blocks;
+// };
+
+// utils.getOneBlock = (data, index=null, preview=false) => {
+
+//     data = data || {};
+//     let options = {};
+
+//     options.index = data.key || data.index;
+
+//     options.bstatic = data.props? data.props.bstatic : data.bstatic;
+//     options.plain = data.props? data.props.plain : data.plain;
+//     options.demo = data.props? data.props.demo : data.demo;
+
+//     if (index !== null){
+//         options.index = index;
+//     }
+    
+//     if (!options.index && options.index !== 0){
+//         console.warn("block without key/index");
+//         return null;
+//     }
+
+//     if (preview){
+//         return (<PreviewBlock key={ options.index } plain={ options.plain } demo={ options.demo } bstatic={ options.bstatic } />);
+//     }
+
+//     return (<Block key={ options.index } plain={ options.plain } demo={ options.demo } bstatic={ options.bstatic } />);
+// };
+
+// utils.getEmptyBlocks = (piece, demo=false) => {
+
+//     let max = demo? 40 : 200;
+
+//     let blocks = [];
+//     for (var i=0; i<max; i++){
+//         blocks.push(utils.getOneBlock({ index:i, demo:demo }));
+//     }
+
+//     if (piece){
+        
+//         utils.eachBlock(piece.model, piece.x, piece.y, piece.dir, function(x, y) {
+//             let index = utils.getBlockIndex(x, y);
+//             blocks[index] = utils.getOneBlock({index:index, plain:true, color:piece.model.color, demo:demo });
+//         });
+//     }
+
+//     return blocks;
+// };
+
+// utils.getBlocksCopy = (_blocks, preview=false) => {
+//     let blocks = [];
+
+//     for (let i in _blocks){
+//         let block = _blocks[i];
+//         blocks[block.key] = utils.getOneBlock(block, block.key, preview);
+//     }
+
+//     return blocks;
+// };
+
+// utils.blocksToPreview = (blocks) => {
+//     let pBlocks = utils.getBlocksCopy(blocks, true);
+
+//     let x, y;
+
+//     for (x=0; x<utils.BOARDSIZE.x; x++) {
+
+//         let emptyCol = true;
+
+//         for (y=0; y<utils.BOARDSIZE.y; y++){
+//             if (!utils.blockIsFree(pBlocks, x, y)){
+//                 emptyCol = false;
+//                 continue;
+//             }
+
+//             if (!emptyCol && utils.blockIsFree(pBlocks, x, y)){
+//                 let index = utils.getBlockIndex(x, y);
+//                 pBlocks[index] = utils.getOneBlock({ plain:true }, index, true);
+//             }
+
+//         }
+//     }
+
+//     return pBlocks;
+// };
+
+//TO KEEP
+
+// CONVERT data TO board
+
+utils.buildBoard = (blocks, preview=false) => {
+    let board = [];
+
+    for (let i in blocks){
+        let block = utils.buildOneBlock(blocks[i], preview);
+        board[block.key] = block;
+    }
 
     return board;
 };
 
-utils.parseBlocks = (blocks) => {
-    let data = [];
-    let block, index;
+utils.buildOneBlock = (block, preview=false) => {
 
-    for (let i in blocks){
-        block = blocks[i];
-        index = parseInt(block.key);
-
-        data[index] = {
-            bstatic : block.props.bstatic,
-            plain   : block.props.plain
-        };
-    }
-
-    return data;
-};
-
-utils.unparseBlocks = (data) => {
-    let blocks = [];
-
-    for (let index in data){
-        blocks[index] = utils.getOneBlock(data[index], index, true);
-    }
-
-    return blocks;
-};
-
-utils.getOneBlock = (data, index=null, preview=false) => {
-
-    data = data || {};
-    let options = {};
-
-    options.index = data.key || data.index;
-
-    options.bstatic = data.props? data.props.bstatic : data.bstatic;
-    options.plain = data.props? data.props.plain : data.plain;
-    options.demo = data.props? data.props.demo : data.demo;
-
-    if (index !== null){
-        options.index = index;
-    }
-    
-    if (!options.index && options.index !== 0){
+    if (!block || (!block.key && block.key !== 0)){
         console.warn("block without key/index");
         return null;
     }
 
     if (preview){
-        return (<PreviewBlock key={ options.index } plain={ options.plain } demo={ options.demo } bstatic={ options.bstatic } />);
+        return (<PreviewBlock key={ block.key } plain={ block.plain } />);
     }
 
-    return (<Block key={ options.index } plain={ options.plain } demo={ options.demo } bstatic={ options.bstatic } />);
+    return (<Block id={ "block-" + block.key } key={ block.key } plain={ block.plain } demo={ block.demo } />);
 };
 
-utils.getEmptyBlocks = (piece, demo=false) => {
 
-    let max = demo? 40 : 200;
+utils.copyBlocks = (blocks) => {
+    return [...blocks];
+}
+
+utils.getBlock = (data, forceKey=null) => {
+
+    data = data || {};
+
+    let block = Object.assign(...defaultBlock, data);
+
+    if (forceKey !== null){
+        block.key = forceKey;
+    }
+
+    return block;
+}
+
+
+utils.initNextPiece = (piece) => {
 
     let blocks = [];
-    for (var i=0; i<max; i++){
-        blocks.push(utils.getOneBlock({ index:i, demo:demo }));
+    for (var i=0; i<40; i++){
+        blocks.push(utils.getBlock({ demo:1 }, i));
     }
 
-    if (piece){
-        
-        utils.eachBlock(piece.model, piece.x, piece.y, piece.dir, function(x, y) {
-            let index = utils.getBlockIndex(x, y);
-            blocks[index] = utils.getOneBlock({index:index, plain:true, color:piece.model.color, demo:demo });
-        });
-    }
+    utils.eachBlock(piece.model, piece.x, piece.y, piece.dir, function(x, y) {
+        let index = utils.getBlockIndex(x, y);
+        blocks[index] = utils.getBlock({ plain:1, demo:1 }, index);
+    });
 
     return blocks;
 };
 
-utils.getBlocksCopy = (_blocks, preview=false) => {
-    let blocks = [];
+utils.initBlocks = () => {
 
-    for (let i in _blocks){
-        let block = _blocks[i];
-        blocks[block.key] = utils.getOneBlock(block, block.key, preview);
+    let blocks = [];
+    for (var i=0; i<200; i++){
+        blocks.push(utils.getBlock({}, i));
     }
 
     return blocks;
-};
-
-utils.blocksToPreview = (blocks) => {
-    let pBlocks = utils.getBlocksCopy(blocks, true);
-
-    let x, y;
-
-    for (x=0; x<utils.BOARDSIZE.x; x++) {
-
-        let emptyCol = true;
-
-        for (y=0; y<utils.BOARDSIZE.y; y++){
-            if (!utils.blockIsFree(pBlocks, x, y)){
-                emptyCol = false;
-                continue;
-            }
-
-            if (!emptyCol && utils.blockIsFree(pBlocks, x, y)){
-                let index = utils.getBlockIndex(x, y);
-                pBlocks[index] = utils.getOneBlock({ plain:true }, index, true);
-            }
-
-        }
-    }
-
-    return pBlocks;
 };
 
 utils.getBlockIndex = (x, y) => {
@@ -166,9 +243,9 @@ utils.getBlockByCords = (blocks, x, y) => {
 utils.blockIsFree = (blocks, x, y, strict=false) => {
     let block = utils.getBlockByCords(blocks, x, y);
 
-    if (strict && (!block || !block.props.plain)){
+    if (strict && (!block || block.plain !== 1)){
         return true;
-    } else if (!strict && (!block || (!block.props.plain && !block.props.bstatic))){
+    } else if (!strict && (!block || !block.plain)){
         return true;
     }
 

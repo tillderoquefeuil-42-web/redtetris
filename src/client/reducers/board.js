@@ -51,9 +51,15 @@ const reducer = (state = initialState , action) => {
             data.index = action.index;
             return data;
         case BOARD_ACTIONS.UPDATE:
-            data.score = action.board.score;
-            data.blocks = action.board.blocks;
-            data.game_over = action.over? true : false;
+            if (action.score){
+                data.score = action.score;
+            }
+            if (action.blocks){
+                data.blocks = action.blocks;
+            }
+            if (action.game_over){
+                data.game_over = true;
+            }
             return data;
         case BOARD_ACTIONS.GET_UPDATE:
             data.players = action.players;

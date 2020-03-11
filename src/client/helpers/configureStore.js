@@ -20,7 +20,7 @@ export default function configureStore(preloadedState) {
                 routerMiddleware(history),
                 thunk, 
                 storeStateMiddleWare, 
-                createLogger(), 
+                // createLogger(), 
                 socketMiddleware
             ),
         ),

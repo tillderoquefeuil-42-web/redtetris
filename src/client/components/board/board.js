@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 import { Container, Column, BoardWrapper, Score } from './styles.js';
+
 import { Button } from '../styles.js';
 
 import NextPiece from './nextPiece.js';
@@ -116,7 +117,6 @@ const rotate = (blocks, piece) => {
     return false;
 };
 
-
 // UPDATE BOARD / PIECE
 
 const getNextPiece = (pieces, lastpiece=null) => {
@@ -152,14 +152,14 @@ const removeLines = (blocks) => {
 
     for (y = utils.BOARDSIZE.y-1; y >= 0; y--) {
         complete = true;
-        
+
         for (x=0; x<utils.BOARDSIZE.x; x++){
             if (utils.blockIsFree(blocks, x, y, true)){
                 complete = false;
                 break;
             }
         }
-        
+
         if (complete){
             blocks = removeLine(blocks, y);
             n++;
@@ -178,9 +178,8 @@ const removeLine = (blocks, line) => {
 
             let index = utils.getBlockIndex(x, y);
             let block = utils.getBlockByCords(blocks, x, y-1);
-            let newBlock = (block? utils.getOneBlock(block, index) : utils.getOneBlock({index:index}));
 
-            blocks[index] = newBlock;
+            blocks[index] = utils.getBlock(block, index);
         }
     }
 
@@ -197,7 +196,10 @@ const addStaticLine = (blocks) => {
 
             let block = utils.getBlockByCords(blocks, x, y+1);
 
-            newBlock = (block? utils.getOneBlock(block, index) : utils.getOneBlock({ index:index, bstatic:true }));
+            if (!block){
+                block = { plain:2 };
+            }
+            newBlock = utils.getBlock(block, index);
 
             blocks[index] = newBlock;
         }
@@ -236,8 +238,8 @@ const updateDelay = (delay, lines) => {
 
 const updateScore = (score, lines, piece) => {
 
-    if (piece.harddrop_rows){
-        score += piece.harddrop_rows;
+    if (piece.harddrop_rows > 1){
+        score += (piece.harddrop_rows - 1);
     }
 
     score += SCORING[lines];
@@ -245,38 +247,45 @@ const updateScore = (score, lines, piece) => {
     return score;
 };
 
-const updateBoard = (staticBlocks, piece) => {
+const updateCurrent = (staticBlocks, piece) => {
 
-    let blocks = utils.getBlocksCopy(staticBlocks);
+    let blocks = utils.copyBlocks(staticBlocks);
 
     utils.eachBlock(piece.model, piece.x, piece.y, piece.dir, function(x, y) {
         let index = utils.getBlockIndex(x, y);
-        blocks[index] = utils.getOneBlock({index:index, plain:true, color:piece.model.color });
+        blocks[index] = utils.getBlock({ plain:1 }, index);
     });
 
     return blocks;
 };
 
 
-
 const Board = (props) => {
 
-    const [piece, setPiece] = useState(null);
-    const [score, setScore] = useState(0);
-    const [over, setOver] = useState(false);
+    let blocks;
 
-    const [blocks, setBlocks] = useState(utils.getEmptyBlocks());
+    const [piece, setPiece] = useState(null);
     const [current, setCurrent] = useState(null);
     const [countdown, setCountdown] = useState(3);
-
     const [delay, setDelay] = useState(2000);
 
-    // MANAGE FIRST PIECE
+
+    // INIT BLOCKS
+    useEffect(() => {
+        if (!props.blocks){
+            blocks = utils.initBlocks();
+            props.dispatch({ type: 'BOARD_UPDATE', blocks:blocks });
+        }
+    });
+
+    // INIT PIECE
     useEffect(() => {
         if (!piece && props.pieces.length){
             let newPiece = getNextPiece(props.pieces);
             setPiece(newPiece);
-            setCurrent(utils.getEmptyBlocks(newPiece));
+            if (props.blocks){
+                setCurrent(updateCurrent(props.blocks, newPiece));
+            }
         }
     });
 
@@ -286,8 +295,7 @@ const Board = (props) => {
         let overLine = props.over_line;
         if (player && player.overLine){
             while (player.overLine > overLine){
-                let nBlocks = addStaticLine(blocks);
-                setBlocks(nBlocks);
+                blocks = addStaticLine(blocks);
                 overLine++;
             }
             props.dispatch({ type: 'BOARD_OVER_LINE', over_line: player.overLine});
@@ -296,52 +304,52 @@ const Board = (props) => {
 
     const handleKeyPress = (event) => {
 
-        if (!over && Object.values(ARROW_CODES).indexOf(event.code) !== -1){
-            let newPiece = handleAction(event.code, blocks, piece);
+        blocks = props.blocks;
 
-            //CURRENT PIECE IS STUCK
-            if (newPiece && newPiece.END){
-                let newCurrent = updateBoard(blocks, newPiece);
-                setCurrent(newCurrent);
+        if (props.game_over || Object.values(ARROW_CODES).indexOf(event.code) === -1){
+            return;
+        }
 
-                let blocksCopy = utils.getBlocksCopy(newCurrent);
-                let [newBlocks, lines] = removeLines(blocksCopy);
-                let newScore = updateScore(score, lines, newPiece);
-                setScore(score); //for unknown reasons
+        let _piece = handleAction(event.code, blocks, piece);
 
-                //GET NEXT PIECE
-                newPiece = getNextPiece(props.pieces, piece);
-                setPiece(newPiece);
-                setBlocks(newBlocks);
-                setScore(newScore);
+        //CURRENT PIECE IS STUCK
+        if (_piece && _piece.END){
+            let _current = updateCurrent(blocks, _piece);
+            setCurrent(_current);
 
-                if (lines > 0){
-                    props.dispatch({ type: 'BOARD_REMOVE_LINE', lines:lines });
-                }
+            let currentCopy = utils.copyBlocks(_current);
+            let [_blocks, lines] = removeLines(currentCopy);
 
-                let board = utils.parseBoard(newBlocks, newScore);
-                if (pieceIsStuck(newBlocks, newPiece)){
-                    setOver(true);
-                    props.dispatch({ type: 'BOARD_UPDATE', board:board, over:true });
-                } else {
-                    setCurrent(updateBoard(newBlocks, newPiece));
-                    setDelay(updateDelay(delay, lines));
-                    props.dispatch({ type: 'BOARD_UPDATE', board:board });
+            let score = updateScore(props.score, lines, _piece);
 
-                    if (newPiecesNeeded(props.pieces, newPiece)){
-                        props.dispatch({ type: 'BOARD_NEW_PIECES' });
-                    }
-                }
+            //GET NEXT PIECE
+            _piece = getNextPiece(props.pieces, piece);
+            setPiece(_piece);
 
-            //FETCH MOVE
-            } else if (newPiece && newPiece.model){
-                setPiece(newPiece);                
-                setCurrent(updateBoard(blocks, newPiece));
+            if (lines > 0){
+                props.dispatch({ type: 'BOARD_REMOVE_LINE', lines:lines });
             }
+
+            if (pieceIsStuck(_blocks, _piece)){
+                props.dispatch({ type: 'BOARD_UPDATE', blocks:_blocks, score:score, game_over:true });
+            } else {
+                setCurrent(updateCurrent(_blocks, _piece));
+                setDelay(updateDelay(delay, lines));
+                props.dispatch({ type: 'BOARD_UPDATE', blocks:_blocks, score:score });
+
+                if (newPiecesNeeded(props.pieces, _piece)){
+                    props.dispatch({ type: 'BOARD_NEW_PIECES' });
+                }
+            }
+
+        //FETCH MOVE
+        } else if (_piece && _piece.model){
+            setPiece(_piece);                
+            setCurrent(updateCurrent(blocks, _piece));
         }
     }
 
-    const handler = useCallback(handleKeyPress, [piece, blocks, current, over, delay, score, props]);
+    const handler = useCallback(handleKeyPress, [piece, current, delay, props]);
     useEventListener('keydown', handler);
 
     if (countdown !== null){
@@ -369,15 +377,15 @@ const Board = (props) => {
 
             <Column>
                 <BoardWrapper>
-                    { current }
-                    <GameOver over={ over } />
+                    { utils.buildBoard(current) }
+                    <GameOver gameOver={ props.game_over } />
                 </BoardWrapper>
-                <Score>{ score }</Score>
+                <Score>{ props.score }</Score>
             </Column>
 
             <Column>
                 {
-                    over?
+                    props.game_over?
                     <Button onClick={ () => backToRoom(props) }>Change Room</Button>
                     // <NextPiece piece={ piece? piece.next : null} />
                     :
@@ -395,6 +403,8 @@ function mapStateToProps(state) {
         players     : state.board.players,
         over_line   : state.board.over_line,
         blocks      : state.board.blocks,
+        score       : state.board.score,
+        game_over   : state.board.game_over,
         name        : state.login.name
     };
 };

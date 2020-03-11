@@ -16,13 +16,13 @@ const NextPiece = (props) => {
             (piece && piece.index !== index)
         ){
             setIndex(piece.index);
-            setBlocks(utils.getEmptyBlocks(piece, true))
+            setBlocks(utils.initNextPiece(piece))
         }
     });
  
     return (
         <NextPieceWrapper>
-            { blocks }
+            { utils.buildBoard(blocks) }
         </NextPieceWrapper>
     );
 };

@@ -105,7 +105,7 @@ export const PreviewWrapper = styled(BoardWrapper)`
 `;
 
 export const BoardCover = styled.div`
-    display: ${ props => props.over? 'flex' : 'none' };
+    display: ${ props => props.gameOver? 'flex' : 'none' };
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -121,7 +121,7 @@ export const Block = styled.div`
     width: 9.8px;
     height: 9.8px;
     border: 0.1px solid ${props => props.demo? (props.plain? '#000' : 'transparent') : '#860000'};
-    background: ${props => props.bstatic? '#860000' : (props.plain? '#c51b12' : 'none') };
+    background: ${props => props.plain === 2? '#860000' : (props.plain? '#c51b12' : 'none') };
 
     @media ${devices.mobileS}, @media ${devices.mobileM}, @media ${devices.mobileL} {
         border: 0.5px solid ${props => props.demo? (props.plain? '#000' : 'transparent') : '#860000'};
@@ -144,7 +144,7 @@ export const PreviewBlock = styled.div`
     width: 4.8px;
     height: 4.8px;
     border: 0.1px solid ${props => props.plain? '#860000' : 'transparent'};
-    background: ${props => (props.plain || props.bstatic)? '#860000' : 'none'};
+    background: ${props => (props.plain)? '#860000' : 'none'};
 
     @media ${devices.mobileS}, @media ${devices.mobileM}, @media ${devices.mobileL} {
         border: 0.5px solid ${props => props.plain? '#860000' : 'transparent'};
