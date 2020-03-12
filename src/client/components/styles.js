@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 export const TextInput = styled.input`
+
     color: #ff0d00;
     background: #6d0000;
 
@@ -47,9 +48,9 @@ export const Button = styled.button`
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none;
-    border-width: 1px;
 
-    border: 1px solid transparent;
+    border: 1px solid #500000;
+    border-radius: 3px;
 
     display: block;
     width: 100%;

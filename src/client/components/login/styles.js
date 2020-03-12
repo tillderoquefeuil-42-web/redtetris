@@ -9,15 +9,19 @@ export const Container = styled.div`
 `;
 
 export const Wrapper = styled.div`
+
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
     padding: 50px;
     padding: 20px 50px;
-    background: #210000;
-    border-radius: 3px;
     color: #fff;
+
+    box-shadow: #000000bd 0px 0px 50px -10px inset;
+    background: #832424;
+    border: 10px solid #c51b12;
+    border-radius: 10px;
 
     min-width: 120px;
 
