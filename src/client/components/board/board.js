@@ -310,12 +310,11 @@ const Board = (props) => {
 
     const handleKeyPress = (event) => {
 
-        blocks = props.blocks;
-
-        if (props.game_over || Object.values(ARROW_CODES).indexOf(event.code) === -1){
+        if (countdown !== null || props.game_over || Object.values(ARROW_CODES).indexOf(event.code) === -1){
             return;
         }
 
+        blocks = props.blocks;
         let _piece = handleAction(event.code, blocks, piece);
 
         //CURRENT PIECE IS STUCK

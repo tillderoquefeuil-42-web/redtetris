@@ -49,9 +49,15 @@ export const socketMiddleware = store => next => action => {
             socketEmission(action.type, data);
             break;
         case BOARD_ACTIONS.UPDATE:
-            data.board.score = action.score;
-            data.board.blocks = action.blocks;
-            data.board.game_over = action.over? true : false;
+            if (action.score){
+                data.board.score = action.score;
+            }
+            if (action.blocks){
+                data.board.blocks = action.blocks;
+            }
+            if (action.game_over){
+                data.board.game_over = action.game_over? true : false;
+            }
             socketEmission(action.type, data);
             break;
     }
