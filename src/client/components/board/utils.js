@@ -28,7 +28,7 @@ utils.getOtherPlayers = (players, name) => {
     let others = [];
 
     for (let i in players){
-        if (players[i].name !== name){
+        if (players[i].name !== name && !players[i].viewer){
             others.push(players[i]);
         }
     }

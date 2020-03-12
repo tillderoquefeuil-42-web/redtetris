@@ -59,8 +59,6 @@ exports.updatePlayer = (socket, playerRoom, gameRoom, board) => {
 
 exports.delete = (socket) => {
     let player = _players.getById(socket);
-
-
 };
 
 

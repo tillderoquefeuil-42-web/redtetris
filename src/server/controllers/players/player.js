@@ -4,6 +4,7 @@ class Player {
         this.name = name;
         this.id = socket.id;
         this.gameRoom = gameRoom;
+        this.viewer = false;
         this.score = 0;
         this.blocks = [];
         this.gameOver = false;
@@ -11,6 +12,10 @@ class Player {
 
         if (board) {
             this.updateBoard(board);
+        }
+
+        if (gameRoom && gameRoom.start){
+            this.viewer = true;
         }
     }
 
@@ -20,7 +25,8 @@ class Player {
             score       : this.score,
             blocks      : this.blocks,
             gameOver    : this.gameOver,
-            overLine    : this.overLine
+            overLine    : this.overLine,
+            viewer      : this.viewer
         };
     }
 

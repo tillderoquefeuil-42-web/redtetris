@@ -6,6 +6,7 @@ class Room {
         this.owner = socket.id;
         this.date = Date.now();
         this.active = true;
+        this.start = false;
         this.clients = [];
     }
 
@@ -55,6 +56,10 @@ class Room {
                 this.owner = this.clients[0];
             }
         }
+    }
+
+    setStart() {
+        this.start = true;
     }
 
 };

@@ -19,6 +19,7 @@ const initialState = {
   start         : false,
   active_rooms  : [],
   owner         : false,
+  viewer        : false,
   unique_id     : null
 };
 
@@ -91,6 +92,9 @@ const reducer = (state = initialState , action) => {
       return data;
     case LOGIN_ACTIONS.GET_OWNER:
       data.owner = action.owner;
+      if (action.started){
+        data.viewer = true;
+      }
       return data;
     default:
       return state

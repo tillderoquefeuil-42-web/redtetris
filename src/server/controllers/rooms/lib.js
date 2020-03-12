@@ -194,11 +194,14 @@ exports.roomOwner = (socket, gameRoom) => {
 
     return {
         type    : LOGIN_ACTIONS.GET_OWNER,
-        owner   : owner
+        owner   : owner,
+        started : gameRoom.start
     };
 };
 
-exports.startGame = () => {
+exports.startGame = (gameRoom) => {
+    gameRoom.setStart();
+
     return {
         type    : LOGIN_ACTIONS.GET_START
     };

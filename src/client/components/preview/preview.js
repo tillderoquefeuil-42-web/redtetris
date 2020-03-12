@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import GameOver from './gameOver.js';
-import { PreviewWrapper, PreviewScore, PreviewName } from './styles.js';
-import utils from './utils.js';
+import GameOver from '../board/gameOver.js';
+import { PreviewsContainer, PreviewWrapper, PreviewScore, PreviewName } from '../board/styles.js';
+import utils from '../board/utils.js';
 
 const Previews = (props) => {
 
@@ -19,9 +19,9 @@ const Previews = (props) => {
     }
 
     return (
-        <div>
+        <PreviewsContainer>
             { previews }
-        </div>
+        </PreviewsContainer>
     );
 };
 
@@ -37,7 +37,7 @@ const Preview = (props) => {
         <PreviewWrapper>
             <PreviewName>{ props.player.name }</PreviewName>
             { utils.buildBoard(blocks, true) }
-            <GameOver over={ props.player.over } preview={ true } />
+            <GameOver gameOver={ props.player.gameOver } preview={ true } />
             <PreviewScore>{ props.player.score }</PreviewScore>
         </PreviewWrapper>
     );

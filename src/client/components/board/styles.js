@@ -79,31 +79,6 @@ export const NextPieceWrapper = styled.div`
     }
 `;
 
-
-export const PreviewWrapper = styled(BoardWrapper)`
-    width: 50px;
-    height: 100px;
-    background: none;
-    border: 3px solid #860000;
-    border-radius: 5px;
-    box-shadow: none;
-
-    @media ${devices.mobileS}, @media ${devices.mobileM}, @media ${devices.mobileL} {
-        width: 100px;
-        height: 200px;
-    }
-
-    @media ${devices.tablet}, @media ${devices.laptop}, @media ${devices.laptopL} {
-        width: 150px;
-        height: 300px;
-    }
-
-    @media ${devices.desktop}, @media ${devices.desktopL} {
-        width: 300px;
-        height: 600px;
-    }
-`;
-
 export const BoardCover = styled.div`
     display: ${ props => props.gameOver? 'flex' : 'none' };
     flex-direction: column;
@@ -140,6 +115,49 @@ export const Block = styled.div`
     }
 `;
 
+export const Score = styled.h1`
+    color: #fff;
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #e60073, 0 0 40px #e60073, 0 0 50px #e60073, 0 0 60px #e60073, 0 0 70px #e60073;
+`;
+
+export const GameOverSpan = styled(Score)`
+    font-size: ${ props => props.preview? '25px' : '35px' };
+    margin: 2px;
+`;
+
+
+export const PreviewsContainer = styled.div`
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+`;
+
+export const PreviewWrapper = styled(BoardWrapper)`
+    width: 50px;
+    height: 100px;
+    background: none;
+    border: 3px solid #860000;
+    border-radius: 5px;
+    box-shadow: none;
+
+    @media ${devices.mobileS}, @media ${devices.mobileM}, @media ${devices.mobileL} {
+        width: 100px;
+        height: 200px;
+    }
+
+    @media ${devices.tablet}, @media ${devices.laptop}, @media ${devices.laptopL} {
+        width: 150px;
+        height: 300px;
+    }
+
+    @media ${devices.desktop}, @media ${devices.desktopL} {
+        width: 300px;
+        height: 600px;
+    }
+`;
+
 export const PreviewBlock = styled.div`
     width: 4.8px;
     height: 4.8px;
@@ -161,16 +179,6 @@ export const PreviewBlock = styled.div`
         width: 29px;
         height: 29px;
     }
-`;
-
-export const Score = styled.h1`
-    color: #fff;
-    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #e60073, 0 0 40px #e60073, 0 0 50px #e60073, 0 0 60px #e60073, 0 0 70px #e60073;
-`;
-
-export const GameOverSpan = styled(Score)`
-    font-size: ${ props => props.preview? '25px' : '35px' };
-    margin: 2px;
 `;
 
 export const PreviewScore = styled(Score)`

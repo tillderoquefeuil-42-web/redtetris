@@ -7,7 +7,7 @@ import { Button } from '../styles.js';
 
 import NextPiece from './nextPiece.js';
 import GameOver from './gameOver.js';
-import Previews from './preview.js';
+import Previews from '../preview/preview.js';
 
 import useEventListener from '../eventListener/eventListener.js';
 import useInterval from '../interval/interval.js';
@@ -308,6 +308,7 @@ const Board = (props) => {
         }
     });
 
+    // HANDLE PLAYER ACTION
     const handleKeyPress = (event) => {
 
         if (countdown !== null || props.game_over || Object.values(ARROW_CODES).indexOf(event.code) === -1){
@@ -358,6 +359,7 @@ const Board = (props) => {
     const handler = useCallback(handleKeyPress, [piece, current, delay, props]);
     useEventListener('keydown', handler);
 
+    // COUNTDOWN
     if (countdown !== null){
         useInterval(() => {
             setCountdown(!countdown? null : countdown - 1);

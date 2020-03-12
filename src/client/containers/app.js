@@ -4,14 +4,16 @@ import { push } from 'connected-react-router'
 
 import { Container, Title } from './styles.js';
 import Board from '../components/board/board';
+import Viewer from '../components/viewer/viewer';
 import Login from '../components/login/login';
 
 import { parseHash, getHashFromProps } from '../helpers/utils';
 
 function getRoute(props) {
 
-  if (props.start){
-    console.log(props.unique_id);
+  if (props.viewer){
+    return <Viewer />
+  } else if (props.start){
     return <Board key={ props.unique_id } />
   }
 
@@ -46,6 +48,7 @@ const mapStateToProps = state => ({
   room_set  : state.login.room_set,
   logged    : state.login.logged,
   start     : state.login.start,
+  viewer    : state.login.viewer,
   unique_id : state.login.unique_id,
   hash      : state.router.location.hash,
 });
