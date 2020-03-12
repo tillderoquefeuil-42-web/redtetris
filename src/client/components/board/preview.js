@@ -27,12 +27,16 @@ const Previews = (props) => {
 
 const Preview = (props) => {
 
-    let blocks = utils.unparseBlocks(props.player.blocks);
+    if (!props.player.blocks){
+        return null;
+    }
+
+    let blocks = utils.initPreview(props.player.blocks);
 
     return (
         <PreviewWrapper>
             <PreviewName>{ props.player.name }</PreviewName>
-            { utils.blocksToPreview(blocks) }
+            { utils.buildBoard(blocks, true) }
             <GameOver over={ props.player.over } preview={ true } />
             <PreviewScore>{ props.player.score }</PreviewScore>
         </PreviewWrapper>

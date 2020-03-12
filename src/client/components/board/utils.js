@@ -11,6 +11,8 @@ const utils = {
 const defaultBlock = { plain : 0 };
 
 
+// MANAGE PLAYERS
+
 utils.getPlayerState = (players, name) => {
 
     for (let i in players){
@@ -35,132 +37,7 @@ utils.getOtherPlayers = (players, name) => {
 };
 
 
-// MANAGE BLOCKS
-
-// utils.parseBoard = (blocks, score) => {
-//     let board = {
-//         score   : score,
-//         blocks  : utils.parseBlocks(blocks)
-//     };
-
-//     return board;
-// };
-
-// utils.parseBlocks = (blocks) => {
-//     let data = [];
-//     let block, index;
-
-//     for (let i in blocks){
-//         block = blocks[i];
-//         index = parseInt(block.key);
-
-//         data[index] = {
-//             bstatic : block.props.bstatic,
-//             plain   : block.props.plain,
-//             key     : index
-//         };
-//     }
-
-//     return data;
-// };
-
-// utils.unparseBlocks = (data) => {
-//     let blocks = [];
-
-//     for (let index in data){
-//         blocks[index] = utils.getOneBlock(data[index], index, true);
-//     }
-
-//     return blocks;
-// };
-
-// utils.getOneBlock = (data, index=null, preview=false) => {
-
-//     data = data || {};
-//     let options = {};
-
-//     options.index = data.key || data.index;
-
-//     options.bstatic = data.props? data.props.bstatic : data.bstatic;
-//     options.plain = data.props? data.props.plain : data.plain;
-//     options.demo = data.props? data.props.demo : data.demo;
-
-//     if (index !== null){
-//         options.index = index;
-//     }
-    
-//     if (!options.index && options.index !== 0){
-//         console.warn("block without key/index");
-//         return null;
-//     }
-
-//     if (preview){
-//         return (<PreviewBlock key={ options.index } plain={ options.plain } demo={ options.demo } bstatic={ options.bstatic } />);
-//     }
-
-//     return (<Block key={ options.index } plain={ options.plain } demo={ options.demo } bstatic={ options.bstatic } />);
-// };
-
-// utils.getEmptyBlocks = (piece, demo=false) => {
-
-//     let max = demo? 40 : 200;
-
-//     let blocks = [];
-//     for (var i=0; i<max; i++){
-//         blocks.push(utils.getOneBlock({ index:i, demo:demo }));
-//     }
-
-//     if (piece){
-        
-//         utils.eachBlock(piece.model, piece.x, piece.y, piece.dir, function(x, y) {
-//             let index = utils.getBlockIndex(x, y);
-//             blocks[index] = utils.getOneBlock({index:index, plain:true, color:piece.model.color, demo:demo });
-//         });
-//     }
-
-//     return blocks;
-// };
-
-// utils.getBlocksCopy = (_blocks, preview=false) => {
-//     let blocks = [];
-
-//     for (let i in _blocks){
-//         let block = _blocks[i];
-//         blocks[block.key] = utils.getOneBlock(block, block.key, preview);
-//     }
-
-//     return blocks;
-// };
-
-// utils.blocksToPreview = (blocks) => {
-//     let pBlocks = utils.getBlocksCopy(blocks, true);
-
-//     let x, y;
-
-//     for (x=0; x<utils.BOARDSIZE.x; x++) {
-
-//         let emptyCol = true;
-
-//         for (y=0; y<utils.BOARDSIZE.y; y++){
-//             if (!utils.blockIsFree(pBlocks, x, y)){
-//                 emptyCol = false;
-//                 continue;
-//             }
-
-//             if (!emptyCol && utils.blockIsFree(pBlocks, x, y)){
-//                 let index = utils.getBlockIndex(x, y);
-//                 pBlocks[index] = utils.getOneBlock({ plain:true }, index, true);
-//             }
-
-//         }
-//     }
-
-//     return pBlocks;
-// };
-
-//TO KEEP
-
-// CONVERT data TO board
+// CONVERT BLOCKS TO REACTELEMS
 
 utils.buildBoard = (blocks, preview=false) => {
     let board = [];
@@ -188,23 +65,7 @@ utils.buildOneBlock = (block, preview=false) => {
 };
 
 
-utils.copyBlocks = (blocks) => {
-    return [...blocks];
-}
-
-utils.getBlock = (data, forceKey=null) => {
-
-    data = data || {};
-
-    let block = Object.assign(...defaultBlock, data);
-
-    if (forceKey !== null){
-        block.key = forceKey;
-    }
-
-    return block;
-}
-
+// INIT
 
 utils.initNextPiece = (piece) => {
 
@@ -230,6 +91,48 @@ utils.initBlocks = () => {
 
     return blocks;
 };
+
+utils.initPreview = (blocks) => {
+    let previews = [...blocks];
+
+    let x, y;
+
+    for (x=0; x<utils.BOARDSIZE.x; x++) {
+
+        let emptyCol = true;
+
+        for (y=0; y<utils.BOARDSIZE.y; y++){
+            if (!utils.blockIsFree(previews, x, y)){
+                emptyCol = false;
+                continue;
+            }
+
+            if (!emptyCol && utils.blockIsFree(previews, x, y)){
+                let index = utils.getBlockIndex(x, y);
+                previews[index] = utils.getBlock({ plain:1 }, index);
+            }
+
+        }
+    }
+
+    return previews;
+};
+
+
+// MANAGE BLOCKS
+
+utils.getBlock = (data, forceKey=null) => {
+
+    data = data || {};
+
+    let block = Object.assign(...defaultBlock, data);
+
+    if (forceKey !== null){
+        block.key = forceKey;
+    }
+
+    return block;
+}
 
 utils.getBlockIndex = (x, y) => {
     return (y * 10 + x);

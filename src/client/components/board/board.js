@@ -188,6 +188,8 @@ const removeLine = (blocks, line) => {
 
 const addStaticLine = (blocks) => {
 
+    blocks = [...blocks];
+
     for (let y=0; y<utils.BOARDSIZE.y; y++) {
         for (let x=0; x<utils.BOARDSIZE.x; x++) {
 
@@ -249,7 +251,7 @@ const updateScore = (score, lines, piece) => {
 
 const updateCurrent = (staticBlocks, piece) => {
 
-    let blocks = utils.copyBlocks(staticBlocks);
+    let blocks = [...staticBlocks];
 
     utils.eachBlock(piece.model, piece.x, piece.y, piece.dir, function(x, y) {
         let index = utils.getBlockIndex(x, y);
@@ -293,12 +295,16 @@ const Board = (props) => {
     useEffect(() => {
         let player = utils.getPlayerState(props.players, props.name);
         let overLine = props.over_line;
-        if (player && player.overLine){
+        if (player && player.overLine && !props.game_over){
+            let _blocks;
             while (player.overLine > overLine){
-                blocks = addStaticLine(blocks);
+                _blocks = addStaticLine(props.blocks);
                 overLine++;
             }
-            props.dispatch({ type: 'BOARD_OVER_LINE', over_line: player.overLine});
+            if (_blocks){
+                props.dispatch({ type: 'BOARD_OVER_LINE', over_line: player.overLine});
+                props.dispatch({ type: 'BOARD_UPDATE', blocks:_blocks });
+            }
         }
     });
 
@@ -317,10 +323,12 @@ const Board = (props) => {
             let _current = updateCurrent(blocks, _piece);
             setCurrent(_current);
 
-            let currentCopy = utils.copyBlocks(_current);
+            let currentCopy = [..._current];
             let [_blocks, lines] = removeLines(currentCopy);
 
             let score = updateScore(props.score, lines, _piece);
+
+            props.dispatch({ type: 'BOARD_UPDATE', blocks:_blocks, score:score });
 
             //GET NEXT PIECE
             _piece = getNextPiece(props.pieces, piece);
@@ -331,11 +339,10 @@ const Board = (props) => {
             }
 
             if (pieceIsStuck(_blocks, _piece)){
-                props.dispatch({ type: 'BOARD_UPDATE', blocks:_blocks, score:score, game_over:true });
+                props.dispatch({ type: 'BOARD_UPDATE', game_over:true });
             } else {
                 setCurrent(updateCurrent(_blocks, _piece));
                 setDelay(updateDelay(delay, lines));
-                props.dispatch({ type: 'BOARD_UPDATE', blocks:_blocks, score:score });
 
                 if (newPiecesNeeded(props.pieces, _piece)){
                     props.dispatch({ type: 'BOARD_NEW_PIECES' });
