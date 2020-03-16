@@ -172,6 +172,16 @@ exports.joinGameRoom = (socket, name) => {
     return room;
 };
 
+exports.leaveGameRoom = (socket) => {
+    let rooms = _rooms.getSocketRoomsByType(socket, TYPES.GAME);
+    for (let i in rooms){
+        leaveRoom(socket, rooms[i]);
+    }
+
+    return;
+};
+
+
 
 exports.getGameRooms = () => {
 

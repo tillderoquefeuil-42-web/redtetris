@@ -33,6 +33,9 @@ export const socketMiddleware = store => next => action => {
         case LOGIN_ACTIONS.SET_ROOM:
             socketEmission(action.type, data);
             break;
+        case LOGIN_ACTIONS.RESET_ROOM:
+            socketEmission(action.type, data);
+            break;
         case LOGIN_ACTIONS.URL_LOGGING:
             data.login.name = action.data.name;
             data.login.room = action.data.room;

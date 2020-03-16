@@ -3,7 +3,6 @@ class Player {
     constructor({ name, socket, gameRoom, board }) {
         this.name = name;
         this.id = socket.id;
-        this.gameRoom = gameRoom;
         this.viewer = false;
         this.score = 0;
         this.blocks = [];
@@ -14,8 +13,8 @@ class Player {
             this.updateBoard(board);
         }
 
-        if (gameRoom && gameRoom.start){
-            this.viewer = true;
+        if (gameRoom){
+            this.setGameRoom(gameRoom)
         }
     }
 
@@ -35,6 +34,10 @@ class Player {
     }
 
     setGameRoom(gameRoom) {
+        if (!this.gameRoom && gameRoom && gameRoom.start){
+            this.viewer = true;
+        }
+
         this.gameRoom = gameRoom;
     }
 

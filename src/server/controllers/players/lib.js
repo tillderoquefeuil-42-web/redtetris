@@ -57,10 +57,23 @@ exports.updatePlayer = (socket, playerRoom, gameRoom, board) => {
     return player;
 };
 
-exports.delete = (socket) => {
+exports.leaveGameRoom = (socket) => {
     let player = _players.getById(socket);
+
+    if (player){
+        player.setGameRoom(null);
+    }
+
+    return player;
 };
 
+exports.delete = (socket) => {
+    let player = _players.getById(socket);
+
+    if (player){
+        _players.deletePlayer(player);
+    }
+};
 
 exports.getGamePlayers = (gameRoom) => {
 
@@ -69,10 +82,12 @@ exports.getGamePlayers = (gameRoom) => {
 
     for (let i in _players.collection){
         let player = _players.collection[i];
-        if (label === player.gameRoom.label){
+        if (player.gameRoom && label === player.gameRoom.label){
             players.push(player.light);
         }
     }
+
+    console.log(players);
 
     return {
         type    : BOARD_ACTIONS.GET_UPDATE,
@@ -86,7 +101,7 @@ exports.addLine = (socket, gameRoom, lines) => {
 
     for (let i in _players.collection){
         let player = _players.collection[i];
-        if (label === player.gameRoom.label){
+        if (label === player.gameRoom.label && !player.viewer){
             player.addOverline(socket, lines);
             players.push(player.light);
         }

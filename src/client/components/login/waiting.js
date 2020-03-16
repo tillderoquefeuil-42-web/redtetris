@@ -12,7 +12,7 @@ function start(props) {
 }
 
 function backToRoom(props) {
-    props.dispatch({ type: 'LOGIN_UPDATE_ROOM', login_room:'' });
+    props.dispatch({ type: 'LOGIN_RESET_ROOM' });
 }
 
 

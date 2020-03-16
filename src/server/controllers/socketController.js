@@ -11,6 +11,7 @@ const LOGIN_ACTIONS = {
     UPDATE_ROOM   : 'LOGIN_UPDATE_ROOM',
     SET_NAME      : 'LOGIN_SET_NAME',
     SET_ROOM      : 'LOGIN_SET_ROOM',
+    RESET_ROOM    : 'LOGIN_RESET_ROOM',
     URL_LOGGING   : 'LOGIN_URL_LOGGING',
     START         : 'LOGIN_START'
 };
@@ -51,7 +52,7 @@ module.exports = function (app, server) {
                 io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.getGameRooms());
             }
         });
-        
+
         socket.on(LOGIN_ACTIONS.SET_ROOM, (data) => {
             let playerRoom = lib.rooms.getPlayerRoom(data.login.name);
             let gameRoom = lib.rooms.joinGameRoom(socket, data.login.room);
@@ -59,9 +60,10 @@ module.exports = function (app, server) {
 
             if (playerRoom && gameRoom){
                 io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.roomOwner(socket, gameRoom));
+                io.sockets.in(gameRoom.label).emit('ACTION', lib.players.getGamePlayers(gameRoom));
             }
         });
-        
+
         socket.on(LOGIN_ACTIONS.URL_LOGGING, (data) => {
             let playerRoom = lib.rooms.joinPlayerRoom(socket, data.login.name);
             let gameRoom = lib.rooms.joinGameRoom(socket, data.login.room);
@@ -70,6 +72,17 @@ module.exports = function (app, server) {
 
             if (playerRoom && gameRoom){
                 io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.roomOwner(socket, gameRoom));
+                io.sockets.in(gameRoom.label).emit('ACTION', lib.players.getGamePlayers(gameRoom));
+            }
+        });
+
+        socket.on(LOGIN_ACTIONS.RESET_ROOM, (data) => {
+            lib.rooms.leaveGameRoom(socket);
+            lib.players.leaveGameRoom(socket);
+
+            let gameRoom = lib.rooms.getGameRoom(data.login.room);
+            if (gameRoom){
+                io.sockets.in(gameRoom.label).emit('ACTION', lib.players.getGamePlayers(gameRoom));
             }
         });
 

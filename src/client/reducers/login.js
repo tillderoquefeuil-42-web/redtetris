@@ -3,6 +3,7 @@ export const LOGIN_ACTIONS = {
   UPDATE_ROOM   : 'LOGIN_UPDATE_ROOM',
   SET_NAME      : 'LOGIN_SET_NAME',
   SET_ROOM      : 'LOGIN_SET_ROOM',
+  RESET_ROOM    : 'LOGIN_RESET_ROOM',
   URL_LOGGING   : 'LOGIN_URL_LOGGING',
   START         : 'LOGIN_START',
   GET_START     : 'LOGIN_GET_START',
@@ -73,6 +74,12 @@ const reducer = (state = initialState , action) => {
     case LOGIN_ACTIONS.SET_ROOM:
       data.room_set = true;
       data.unique_id = getUniqueId(state);
+      return data;
+    //RESET ROOM
+    case LOGIN_ACTIONS.RESET_ROOM:
+      data.room = '';
+      data.room_set = false;
+      data.start = false;
       return data;
 
     case LOGIN_ACTIONS.START:
