@@ -23,7 +23,13 @@ const SCORING = [0, 40, 100, 300, 1200];
 // MANAGE USER ACTIONS
 const backToRoom = (props) => {
     props.dispatch({ type: 'LOGIN_UPDATE_ROOM', login_room:'' });
+    props.dispatch({ type: 'LOGIN_RESTART' });
 };
+
+const restartGame = (props) => {
+    props.dispatch({ type: 'LOGIN_RESTART' });
+};
+
 
 const handleAction = (keycode, blocks, piece) => {
 
@@ -270,11 +276,13 @@ const Board = (props) => {
     const [current, setCurrent] = useState(null);
     const [countdown, setCountdown] = useState(3);
     const [delay, setDelay] = useState(2000);
-
-
+    const [newPiece, setNewPiece] = useState(false);
+    const [restart, setRestart] = useState(false);
+    
     // INIT BLOCKS
     useEffect(() => {
         if (!props.blocks){
+            setRestart(false);
             blocks = utils.initBlocks();
             props.dispatch({ type: 'BOARD_UPDATE', blocks:blocks });
         }
@@ -295,18 +303,36 @@ const Board = (props) => {
     useEffect(() => {
         let player = utils.getPlayerState(props.players, props.name);
         let overLine = props.over_line;
-        if (player && player.overLine && !props.game_over){
+        if (player && player.overLine && !props.game_over && newPiece){
+            setNewPiece(false);
             let _blocks;
             while (player.overLine > overLine){
                 _blocks = addStaticLine(props.blocks);
                 overLine++;
             }
             if (_blocks){
+                setCurrent(updateCurrent(_blocks, piece));
                 props.dispatch({ type: 'BOARD_OVER_LINE', over_line: player.overLine});
                 props.dispatch({ type: 'BOARD_UPDATE', blocks:_blocks });
             }
         }
     });
+
+    // MANAGE RESTART
+    useEffect(() => {
+        if (props.game_over && !restart){
+            let generalGameOver = true;
+            for (let i in props.players){
+                let p = props.players[i];
+                if (!p.gameOver && !p.viewer){
+                    generalGameOver = false;
+                    break;
+                }
+            }
+
+            setRestart(generalGameOver);
+        }
+    }) ;
 
     // HANDLE PLAYER ACTION
     const handleKeyPress = (event) => {
@@ -320,6 +346,7 @@ const Board = (props) => {
 
         //CURRENT PIECE IS STUCK
         if (_piece && _piece.END){
+
             let _current = updateCurrent(blocks, _piece);
             setCurrent(_current);
 
@@ -333,6 +360,7 @@ const Board = (props) => {
             //GET NEXT PIECE
             _piece = getNextPiece(props.pieces, piece);
             setPiece(_piece);
+            setNewPiece(true);
 
             if (lines > 0){
                 props.dispatch({ type: 'BOARD_REMOVE_LINE', lines:lines });
@@ -392,10 +420,10 @@ const Board = (props) => {
             </Column>
 
             <Column>
+                { restart && props.owner? <Button onClick={ () => restartGame(props) }>Restart</Button> : null }
                 {
                     props.game_over?
                     <Button onClick={ () => backToRoom(props) }>Change Room</Button>
-                    // <NextPiece piece={ piece? piece.next : null} />
                     :
                     <NextPiece piece={ piece? piece.next : null} />
                 }
@@ -413,7 +441,8 @@ function mapStateToProps(state) {
         blocks      : state.board.blocks,
         score       : state.board.score,
         game_over   : state.board.game_over,
-        name        : state.login.name
+        name        : state.login.name,
+        owner       : state.login.owner
     };
 };
 

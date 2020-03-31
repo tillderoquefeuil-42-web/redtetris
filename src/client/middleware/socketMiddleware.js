@@ -44,6 +44,9 @@ export const socketMiddleware = store => next => action => {
         case LOGIN_ACTIONS.START:
             socketEmission(action.type, data);
             break;
+        case LOGIN_ACTIONS.RESTART:
+            socketEmission(action.type, data);
+            break;
         case BOARD_ACTIONS.NEW_PIECES:
             socketEmission(action.type, data);
             break;

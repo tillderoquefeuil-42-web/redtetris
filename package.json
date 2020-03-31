@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "body-parser": "^1.19.0",
-    "connected-react-router": "^6.6.1",
+    "connected-react-router": "^6.8.0",
     "express": "^4.17.1",
     "history": "^4.10.1",
     "http": "0.0.0",
@@ -31,6 +31,7 @@
     "styled-components": "4.0.0"
   },
   "devDependencies": {
+    "acorn": ">=5.7.4",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^6.1.0",
@@ -40,16 +41,18 @@
     "babel-preset-react": "^6.5.0",
     "babel-preset-stage-0": "^6.5.0",
     "babel-watch": "^2.0.7",
+    "braces": ">=2.3.1",
     "debug": "^3.2.6",
     "eslint": "^2.13.1",
     "eslint-plugin-babel": "^3.3.0",
     "eslint-plugin-react": "^5.2.2",
-    "mocha": "^7.0.0",
+    "minimist": ">=1.2.2",
+    "mocha": "^7.1.1",
     "nodemon": "^2.0.2",
     "nyc": "^15.0.0",
-    "webpack": "^4.20.2",
-    "webpack-cli": "^3.1.1",
-    "webpack-dev-server": "^3.1.4"
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
   },
   "nyc": {
     "exclude": [

@@ -8,7 +8,9 @@ export const LOGIN_ACTIONS = {
   START         : 'LOGIN_START',
   GET_START     : 'LOGIN_GET_START',
   GET_ROOMS     : 'LOGIN_GET_ROOMS',
-  GET_OWNER     : 'LOGIN_GET_OWNER'
+  GET_OWNER     : 'LOGIN_GET_OWNER',
+  RESTART       : 'LOGIN_RESTART',
+  GET_RESTART   : 'LOGIN_GET_RESTART'
 };
 
 const initialState = {
@@ -72,6 +74,7 @@ const reducer = (state = initialState , action) => {
       data.name_set = true;
       return data;
     case LOGIN_ACTIONS.SET_ROOM:
+      data.start = false;
       data.room_set = true;
       data.unique_id = getUniqueId(state);
       return data;
@@ -102,6 +105,12 @@ const reducer = (state = initialState , action) => {
       if (action.started){
         data.viewer = true;
       }
+      return data;
+    case LOGIN_ACTIONS.RESTART:
+    case LOGIN_ACTIONS.GET_RESTART:
+      data.start = false;
+      data.viewer = false;
+      data.unique_id = getUniqueId(data);
       return data;
     default:
       return state

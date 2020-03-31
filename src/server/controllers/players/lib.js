@@ -57,6 +57,20 @@ exports.updatePlayer = (socket, playerRoom, gameRoom, board) => {
     return player;
 };
 
+
+exports.restartPlayers = (gameRoom) => {
+
+    let clients = gameRoom.clients;
+
+    for (let i in clients){
+        let player = _players.collection[clients[i]];
+        
+        if (player){
+            player.restart();
+        }   
+    }
+};
+
 exports.leaveGameRoom = (socket) => {
     let player = _players.getById(socket);
 
@@ -86,8 +100,6 @@ exports.getGamePlayers = (gameRoom) => {
             players.push(player.light);
         }
     }
-
-    console.log(players);
 
     return {
         type    : BOARD_ACTIONS.GET_UPDATE,

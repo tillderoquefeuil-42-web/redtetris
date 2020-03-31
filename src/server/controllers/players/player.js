@@ -54,6 +54,18 @@ class Player {
             this.score = board.score;
         }
     }
+    
+    restart() {
+        this.viewer = false;
+        this.score = 0;
+        this.blocks = [];
+        this.gameOver = false;
+        this.overLine = 0;
+
+        return this;
+    }
+
+
 };
 
 module.exports = Player;

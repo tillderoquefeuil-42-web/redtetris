@@ -5,9 +5,11 @@ const LOGIN_ACTIONS = {
     UPDATE_ROOM   : 'LOGIN_UPDATE_ROOM',
     URL_LOGGING   : 'LOGIN_URL_LOGGING',
     START         : 'LOGIN_START',
+    SET_ROOM      : 'LOGIN_SET_ROOM',
     GET_START     : 'LOGIN_GET_START',
     GET_ROOMS     : 'LOGIN_GET_ROOMS',
-    GET_OWNER     : 'LOGIN_GET_OWNER'
+    GET_OWNER     : 'LOGIN_GET_OWNER',
+    GET_RESTART   : 'LOGIN_GET_RESTART'
 };
 
 const BOARD_ACTIONS = {
@@ -182,7 +184,6 @@ exports.leaveGameRoom = (socket) => {
 };
 
 
-
 exports.getGameRooms = () => {
 
     let rooms = getOpenGameRooms();
@@ -215,10 +216,18 @@ exports.startGame = (gameRoom) => {
     return {
         type    : LOGIN_ACTIONS.GET_START
     };
-}
+};
+
+exports.restart = (gameRoom) => {
+    gameRoom.restart();
+
+    return {
+        type    : LOGIN_ACTIONS.GET_RESTART
+    };
+};
 
 exports.resetBoard = () => {
     return {
         type    : BOARD_ACTIONS.RESET
     };
-}
+};

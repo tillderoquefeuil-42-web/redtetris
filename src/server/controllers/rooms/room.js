@@ -4,14 +4,24 @@ class Room {
         this.type = type;
         this.name = name;
         this.owner = socket.id;
-        this.date = Date.now();
+        this.creation_date = Date.now();
+        this.update_date = Date.now();
         this.active = true;
         this.start = false;
         this.clients = [];
     }
 
     get label() {
-        return this.type + '_' + this.name + '_' + this.date;
+        return this.type + '_' + this.name + '_' + this.creation_date;
+    }
+
+    get gameLabel() {
+        return this.type + '_' + this.name + '_' + this.update_date;
+    }
+
+    restart() {
+        this.start = false;
+        this.update_date = Date.now();
     }
 
     isOwner(socket){
