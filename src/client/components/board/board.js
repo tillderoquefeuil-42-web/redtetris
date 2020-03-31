@@ -22,8 +22,7 @@ const SCORING = [0, 40, 100, 300, 1200];
 
 // MANAGE USER ACTIONS
 const backToRoom = (props) => {
-    props.dispatch({ type: 'LOGIN_UPDATE_ROOM', login_room:'' });
-    props.dispatch({ type: 'LOGIN_RESTART' });
+    props.dispatch({ type: 'LOGIN_RESTART', back_to_room:true });
 };
 
 const restartGame = (props) => {

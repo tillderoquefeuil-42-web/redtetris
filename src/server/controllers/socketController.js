@@ -99,10 +99,13 @@ module.exports = function (app, server) {
         socket.on(LOGIN_ACTIONS.RESTART, (data) => {
             let gameRoom = lib.rooms.getGameRoom(data.login.room);
 
-            if (gameRoom && gameRoom.isOwner(socket)){
+            if (gameRoom && gameRoom.isOwner(socket) && !data.back_to_room){
                 lib.players.restartPlayers(gameRoom);
                 io.sockets.in(gameRoom.label).emit('ACTION', lib.rooms.restart(gameRoom));
                 io.sockets.in(gameRoom.label).emit('ACTION', lib.rooms.resetBoard());
+            } else if (gameRoom && data.back_to_room){
+                lib.players.restartOnePlayer(socket);
+                lib.rooms.socketLeave(socket);
             }
         });
 

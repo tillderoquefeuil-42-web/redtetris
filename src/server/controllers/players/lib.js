@@ -67,12 +67,19 @@ exports.restartPlayers = (gameRoom) => {
         
         if (player){
             player.restart();
-        }   
+        }
+    }
+};
+
+exports.restartOnePlayer = (socket) => {
+    let player = _players.getById(socket);
+
+    if (player){
+        player.restart();
     }
 };
 
 exports.leaveGameRoom = (socket) => {
-    let player = _players.getById(socket);
 
     if (player){
         player.setGameRoom(null);

@@ -108,6 +108,11 @@ const reducer = (state = initialState , action) => {
       return data;
     case LOGIN_ACTIONS.RESTART:
     case LOGIN_ACTIONS.GET_RESTART:
+      if (action.back_to_room){
+        data.room = '';
+        data.room_set = false;
+      }
+
       data.start = false;
       data.viewer = false;
       data.unique_id = getUniqueId(data);
