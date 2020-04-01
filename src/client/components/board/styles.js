@@ -134,6 +134,14 @@ export const PreviewsContainer = styled.div`
     align-items: center;
 `;
 
+export const PreviewContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    height: 320px;
+`;
+
 export const PreviewWrapper = styled(BoardWrapper)`
     width: 50px;
     height: 100px;
@@ -190,8 +198,6 @@ export const PreviewScore = styled(Score)`
 `;
 
 export const PreviewName = styled(Score)`
-    position: absolute;
-    top: -65px;
-    width: 100%;
+    width: 100px;
     text-align: center;
 `;

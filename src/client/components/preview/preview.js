@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import GameOver from '../board/gameOver.js';
-import { PreviewsContainer, PreviewWrapper, PreviewScore, PreviewName } from '../board/styles.js';
+import { PreviewsContainer, PreviewContainer, PreviewWrapper, PreviewScore, PreviewName } from '../board/styles.js';
 import utils from '../board/utils.js';
 
 const Previews = (props) => {
@@ -34,12 +34,14 @@ const Preview = (props) => {
     let blocks = utils.initPreview(props.player.blocks);
 
     return (
-        <PreviewWrapper>
+        <PreviewContainer>
             <PreviewName>{ props.player.name }</PreviewName>
-            { utils.buildBoard(blocks, true) }
-            <GameOver gameOver={ props.player.gameOver } preview={ true } />
-            <PreviewScore>{ props.player.score }</PreviewScore>
-        </PreviewWrapper>
+            <PreviewWrapper>
+                { utils.buildBoard(blocks, true) }
+                <GameOver gameOver={ props.player.gameOver } preview={ true } />
+                <PreviewScore>{ props.player.score }</PreviewScore>
+            </PreviewWrapper>
+        </PreviewContainer>
     );
 };
 
