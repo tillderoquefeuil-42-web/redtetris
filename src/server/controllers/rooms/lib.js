@@ -1,15 +1,16 @@
 const Room = require('./Room.js');
 
 const LOGIN_ACTIONS = {
-    UPDATE_NAME   : 'LOGIN_UPDATE_NAME',
-    UPDATE_ROOM   : 'LOGIN_UPDATE_ROOM',
-    URL_LOGGING   : 'LOGIN_URL_LOGGING',
-    START         : 'LOGIN_START',
-    SET_ROOM      : 'LOGIN_SET_ROOM',
-    GET_START     : 'LOGIN_GET_START',
-    GET_ROOMS     : 'LOGIN_GET_ROOMS',
-    GET_OWNER     : 'LOGIN_GET_OWNER',
-    GET_RESTART   : 'LOGIN_GET_RESTART'
+    UPDATE_NAME     : 'LOGIN_UPDATE_NAME',
+    UPDATE_ROOM     : 'LOGIN_UPDATE_ROOM',
+    URL_LOGGING     : 'LOGIN_URL_LOGGING',
+    START           : 'LOGIN_START',
+    SET_ROOM        : 'LOGIN_SET_ROOM',
+    GET_START       : 'LOGIN_GET_START',
+    GET_ROOMS       : 'LOGIN_GET_ROOMS',
+    GET_OWNER       : 'LOGIN_GET_OWNER',
+    GET_RESTART     : 'LOGIN_GET_RESTART',
+    NEW_OWNER       : 'LOGIN_NEW_OWNER'
 };
 
 const BOARD_ACTIONS = {
@@ -100,15 +101,21 @@ let _rooms = {
 function joinRoom(socket, room) {
     room.pushClient(socket);
     socket.join(room.label);
+
+    return room;
 };
 
 function leaveRoom(socket, room) {
+    
     room.removeClient(socket);
     socket.leave(room.label);
-
+    
     if (!room.clients.length){
         _rooms.deleteRoom(room);
+        return null;
     }
+
+    return room;
 };
 
 function getOpenGameRooms() {
@@ -130,10 +137,21 @@ function getOpenGameRooms() {
 
 exports.socketLeave = (socket) => {
     let rooms = _rooms.getSocketRooms(socket);
+    let newOwners = [];
 
     for (let i in rooms){
-        leaveRoom(socket, rooms[i]);
+
+        let room = rooms[i];
+        let owner = room.owner;
+
+        room = leaveRoom(socket, room);
+
+        if (room && owner != room.owner) {
+            newOwners.push(room);
+        }
     }
+
+    return newOwners;
 };
 
 exports.getPlayerRoom = (name, socket=null) => {
@@ -169,13 +187,14 @@ exports.joinGameRoom = (socket, name) => {
     }
 
     let room = this.getGameRoom(name, socket);
-    joinRoom(socket, room);
+    room = joinRoom(socket, room);
 
     return room;
 };
 
 exports.leaveGameRoom = (socket) => {
     let rooms = _rooms.getSocketRoomsByType(socket, TYPES.GAME);
+
     for (let i in rooms){
         leaveRoom(socket, rooms[i]);
     }
@@ -202,6 +221,12 @@ exports.roomOwner = (socket, gameRoom) => {
         started : gameRoom.start
     };
 };
+
+exports.newRoomOwner = () => {
+    return {
+        type    : LOGIN_ACTIONS.NEW_OWNER
+    };
+}
 
 exports.startGame = (gameRoom) => {
     gameRoom.setStart();

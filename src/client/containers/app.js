@@ -27,6 +27,10 @@ const App = (props) => {
   if (!props.logged && data.name && data.room){
     props.dispatch({ type: 'LOGIN_URL_LOGGING', data:data });
   }
+  
+  if (props.owner === null){
+    props.dispatch({ type: 'LOGIN_GET_ROOM_OWNER' });
+  }
 
   let hash = getHashFromProps(props);
   props.dispatch(push(hash));
@@ -50,6 +54,7 @@ const mapStateToProps = state => ({
   start     : state.login.start,
   viewer    : state.login.viewer,
   unique_id : state.login.unique_id,
+  owner     : state.login.owner,
   hash      : state.router.location.hash,
 });
 

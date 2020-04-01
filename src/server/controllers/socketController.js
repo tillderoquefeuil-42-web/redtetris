@@ -14,7 +14,8 @@ const LOGIN_ACTIONS = {
     RESET_ROOM    : 'LOGIN_RESET_ROOM',
     URL_LOGGING   : 'LOGIN_URL_LOGGING',
     START         : 'LOGIN_START',
-    RESTART       : 'LOGIN_RESTART'
+    RESTART       : 'LOGIN_RESTART',
+    GET_ROOM_OWNER: 'LOGIN_GET_ROOM_OWNER'
 };
 
 const BOARD_ACTIONS = {
@@ -35,14 +36,25 @@ const BOARD_ACTIONS = {
 
 module.exports = function (app, server) {
 
-    let io = socketServer.listen(server);
+    // let io = socketServer.listen(server);
+
+    let io = socketServer(server, {
+        pingTimeout : 60000
+    });
 
     let connections = [];
     io.on('connection', function (socket) {
         connections.push(socket);
 
         socket.on('disconnect', () => {
-            lib.rooms.socketLeave(socket);
+            let rooms = lib.rooms.socketLeave(socket);
+
+            for (let i in rooms){
+                let room = rooms[i];
+                io.sockets.in(room.label).emit('ACTION', lib.rooms.newRoomOwner());
+            }
+
+
             lib.players.delete(socket);
         });
 
@@ -55,10 +67,11 @@ module.exports = function (app, server) {
         });
 
         socket.on(LOGIN_ACTIONS.SET_ROOM, (data) => {
+
             let playerRoom = lib.rooms.getPlayerRoom(data.login.name);
             let gameRoom = lib.rooms.joinGameRoom(socket, data.login.room);
-            
-            lib.players.updatePlayer(socket, playerRoom, gameRoom);
+
+            let player = lib.players.updatePlayer(socket, playerRoom, gameRoom);
 
             if (playerRoom && gameRoom){
                 io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.roomOwner(socket, gameRoom));
@@ -67,6 +80,7 @@ module.exports = function (app, server) {
         });
 
         socket.on(LOGIN_ACTIONS.URL_LOGGING, (data) => {
+
             let playerRoom = lib.rooms.joinPlayerRoom(socket, data.login.name);
             let gameRoom = lib.rooms.joinGameRoom(socket, data.login.room);
 
@@ -78,12 +92,28 @@ module.exports = function (app, server) {
             }
         });
 
+        socket.on(LOGIN_ACTIONS.GET_ROOM_OWNER, (data) => {
+
+            let playerRoom = lib.rooms.getPlayerRoom(data.login.name, socket);
+            let gameRoom = lib.rooms.getGameRoom(data.login.room, socket);
+
+            if (playerRoom && gameRoom){
+                io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.roomOwner(socket, gameRoom));
+            }
+        });
+
         socket.on(LOGIN_ACTIONS.RESET_ROOM, (data) => {
-            lib.rooms.leaveGameRoom(socket);
-            lib.players.leaveGameRoom(socket);
 
             let gameRoom = lib.rooms.getGameRoom(data.login.room);
+            let isOwner = gameRoom? gameRoom.isOwner(socket) : null;
+
+            lib.rooms.leaveGameRoom(socket);
+            lib.players.leaveGameRoom(socket);
+            
             if (gameRoom){
+                if (isOwner){
+                    io.sockets.in(gameRoom.label).emit('ACTION', lib.rooms.newRoomOwner());
+                }
                 io.sockets.in(gameRoom.label).emit('ACTION', lib.players.getGamePlayers(gameRoom));
             }
 
@@ -111,9 +141,15 @@ module.exports = function (app, server) {
                 io.sockets.in(gameRoom.label).emit('ACTION', lib.rooms.restart(gameRoom));
                 io.sockets.in(gameRoom.label).emit('ACTION', lib.rooms.resetBoard());
             } else if (gameRoom && data.back_to_room){
+                let isOwner = gameRoom.isOwner(socket);
+
                 lib.players.restartOnePlayer(socket);
                 lib.rooms.leaveGameRoom(socket);
-                
+
+                if (isOwner){
+                    io.sockets.in(gameRoom.label).emit('ACTION', lib.rooms.newRoomOwner());
+                }
+
                 let playerRoom = lib.rooms.getPlayerRoom(data.login.name);
                 if (playerRoom){
                     io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.getGameRooms());

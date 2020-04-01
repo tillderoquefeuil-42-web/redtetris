@@ -80,6 +80,7 @@ exports.restartOnePlayer = (socket) => {
 };
 
 exports.leaveGameRoom = (socket) => {
+    let player = _players.getById(socket);
 
     if (player){
         player.setGameRoom(null);

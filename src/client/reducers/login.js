@@ -1,16 +1,18 @@
 export const LOGIN_ACTIONS = {
-  UPDATE_NAME   : 'LOGIN_UPDATE_NAME',
-  UPDATE_ROOM   : 'LOGIN_UPDATE_ROOM',
-  SET_NAME      : 'LOGIN_SET_NAME',
-  SET_ROOM      : 'LOGIN_SET_ROOM',
-  RESET_ROOM    : 'LOGIN_RESET_ROOM',
-  URL_LOGGING   : 'LOGIN_URL_LOGGING',
-  START         : 'LOGIN_START',
-  GET_START     : 'LOGIN_GET_START',
-  GET_ROOMS     : 'LOGIN_GET_ROOMS',
-  GET_OWNER     : 'LOGIN_GET_OWNER',
-  RESTART       : 'LOGIN_RESTART',
-  GET_RESTART   : 'LOGIN_GET_RESTART'
+  UPDATE_NAME     : 'LOGIN_UPDATE_NAME',
+  UPDATE_ROOM     : 'LOGIN_UPDATE_ROOM',
+  SET_NAME        : 'LOGIN_SET_NAME',
+  SET_ROOM        : 'LOGIN_SET_ROOM',
+  RESET_ROOM      : 'LOGIN_RESET_ROOM',
+  URL_LOGGING     : 'LOGIN_URL_LOGGING',
+  START           : 'LOGIN_START',
+  RESTART         : 'LOGIN_RESTART',
+  GET_START       : 'LOGIN_GET_START',
+  GET_ROOMS       : 'LOGIN_GET_ROOMS',
+  GET_OWNER       : 'LOGIN_GET_OWNER',
+  GET_RESTART     : 'LOGIN_GET_RESTART',
+  NEW_OWNER       : 'LOGIN_NEW_OWNER',
+  GET_ROOM_OWNER  : 'LOGIN_GET_ROOM_OWNER'
 };
 
 const initialState = {
@@ -116,6 +118,12 @@ const reducer = (state = initialState , action) => {
       data.start = false;
       data.viewer = false;
       data.unique_id = getUniqueId(data);
+      return data;
+    case LOGIN_ACTIONS.NEW_OWNER:
+      data.owner = null;
+      return data;
+    case LOGIN_ACTIONS.GET_ROOM_OWNER:
+      data.owner = false;
       return data;
     default:
       return state
