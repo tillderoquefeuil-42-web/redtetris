@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import useEventListener from '../eventListener/eventListener.js';
 import { checkInput } from '../../helpers/utils';
-import { Wrapper, Span } from './styles.js';
+import { Wrapper, Span, AvailableRooms } from './styles.js';
 import { Button, TextInput } from '../styles.js';
 
 function updateRoom(props, value, force=false) {
@@ -31,6 +31,19 @@ function roomSetting({ props, event, force }){
     }
 }
 
+function roomStarted(rooms){
+    let started = false;
+
+    for (let i in rooms){
+        if (rooms[i].start){
+            started = true;
+            break;
+        }
+    }
+
+    return started;
+}
+
 const Room = (props) => {
 
     const handleKeyPress = (event) => {
@@ -52,9 +65,18 @@ const Room = (props) => {
                 onChange={ event => roomSetting({props, event}) }
             />
 
-            { props.active_rooms.map((value, index) => {
-                return <Span key={ index } onClick={ () => roomSetting({ props, event:{target:{value:value}}, force:true }) } >{ value }</Span>
-            }) }
+            <AvailableRooms>
+                { props.active_rooms.map((value, index) => {
+                    return <Span key={ index } onClick={ () => roomSetting({ props, event:{target:{value:value.name}}, force:true }) } >{ value.name + (value.start? '*' : '') }</Span>
+                }) }
+            </AvailableRooms>
+
+            {
+                roomStarted(props.active_rooms)? 
+                <span>* : game already in progress</span>
+                :
+                null
+            }
 
             <Button onClick={ () => roomSetting({props, force:true}) }>Validate Room</Button>
 

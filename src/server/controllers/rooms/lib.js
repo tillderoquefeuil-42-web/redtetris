@@ -118,8 +118,8 @@ function getOpenGameRooms() {
 
     if (gameRooms){
         for (let i in gameRooms){
-            if (gameRooms[i].active && !gameRooms[i].start){
-                openGameRooms.push(gameRooms[i]);
+            if (gameRooms[i].active){
+                openGameRooms.push(gameRooms[i].light);
             }
         }
     }
@@ -186,16 +186,9 @@ exports.leaveGameRoom = (socket) => {
 
 exports.getGameRooms = () => {
 
-    let rooms = getOpenGameRooms();
-    let results = [];
-
-    for (let i in rooms){
-        results.push(rooms[i].name);
-    }
-
     return {
         type    : LOGIN_ACTIONS.GET_ROOMS,
-        rooms   : results
+        rooms   : getOpenGameRooms()
     };
 };
 

@@ -57,6 +57,7 @@ module.exports = function (app, server) {
         socket.on(LOGIN_ACTIONS.SET_ROOM, (data) => {
             let playerRoom = lib.rooms.getPlayerRoom(data.login.name);
             let gameRoom = lib.rooms.joinGameRoom(socket, data.login.room);
+            
             lib.players.updatePlayer(socket, playerRoom, gameRoom);
 
             if (playerRoom && gameRoom){
@@ -85,6 +86,12 @@ module.exports = function (app, server) {
             if (gameRoom){
                 io.sockets.in(gameRoom.label).emit('ACTION', lib.players.getGamePlayers(gameRoom));
             }
+
+            let playerRoom = lib.rooms.getPlayerRoom(data.login.name);
+            if (playerRoom){
+                io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.getGameRooms());
+            }
+
         });
 
         socket.on(LOGIN_ACTIONS.START, (data) => {
@@ -105,7 +112,13 @@ module.exports = function (app, server) {
                 io.sockets.in(gameRoom.label).emit('ACTION', lib.rooms.resetBoard());
             } else if (gameRoom && data.back_to_room){
                 lib.players.restartOnePlayer(socket);
-                lib.rooms.socketLeave(socket);
+                lib.rooms.leaveGameRoom(socket);
+                
+                let playerRoom = lib.rooms.getPlayerRoom(data.login.name);
+                if (playerRoom){
+                    io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.getGameRooms());
+                    io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.resetBoard());
+                }    
             }
         });
 

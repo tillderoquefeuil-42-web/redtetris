@@ -19,6 +19,14 @@ class Room {
         return this.type + '_' + this.name + '_' + this.update_date;
     }
 
+    get light() {
+        return {
+            name        : this.name,
+            type        : this.type,
+            start       : this.start
+        };
+    }
+
     restart() {
         this.start = false;
         this.update_date = Date.now();

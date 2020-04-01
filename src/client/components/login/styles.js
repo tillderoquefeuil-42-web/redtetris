@@ -44,4 +44,13 @@ export const Span = styled.span`
     :hover, :active {
         text-decoration: underline;
     }
+    display: block;
+`;
+
+export const AvailableRooms = styled.div`
+    width: 80%;
+    max-height: 75px;
+    overflow: auto;
+    text-align: center;
+    margin: 15px 0px;
 `;
