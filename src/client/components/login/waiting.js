@@ -15,6 +15,38 @@ function backToRoom(props) {
     props.dispatch({ type: 'LOGIN_RESET_ROOM' });
 }
 
+function getWaitingPlayers(players, name) {
+    let waiting = [];
+
+    for (let i in players){
+        if (players[i].name !== name){
+            waiting.push(players[i]);
+        }
+    }
+
+    return waiting;
+}
+
+const WaitingPlayers = (props) => {
+
+    let players = props.players;
+
+    if (!players || !players.length){
+        return null;
+    }
+
+    return (
+        <div>
+            <h4>Online players :</h4>
+            <ul>
+                { players.map((value, index) => {
+                    return <li key={ index } >{ value.name }</li>
+                }) }
+            </ul>
+            <br />
+        </div>
+    );
+};
 
 const Waiting = (props) => {
 
@@ -29,8 +61,10 @@ const Waiting = (props) => {
 
     return (
         <Wrapper>
-            <h2>{ props.name }</h2>
-            <h2>{ props.room }</h2>
+            <h2>{ props.name } - { props.room }</h2>
+
+            <WaitingPlayers players={ getWaitingPlayers(props.players, props.name) } />
+
             {
                 props.owner?
                 <Button onClick={ () => start(props) }>Start</Button>
@@ -48,7 +82,8 @@ function mapStateToProps(state) {
     return {
         name    : state.login.name,
         room    : state.login.room,
-        owner   : state.login.owner
+        owner   : state.login.owner,
+        players : state.board.players
     };
 }
 
