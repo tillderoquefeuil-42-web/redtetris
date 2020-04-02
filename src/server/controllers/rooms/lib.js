@@ -1,27 +1,6 @@
 const Room = require('./Room.js');
 
-const LOGIN_ACTIONS = {
-    UPDATE_NAME     : 'LOGIN_UPDATE_NAME',
-    UPDATE_ROOM     : 'LOGIN_UPDATE_ROOM',
-    URL_LOGGING     : 'LOGIN_URL_LOGGING',
-    START           : 'LOGIN_START',
-    SET_ROOM        : 'LOGIN_SET_ROOM',
-    GET_START       : 'LOGIN_GET_START',
-    GET_ROOMS       : 'LOGIN_GET_ROOMS',
-    GET_OWNER       : 'LOGIN_GET_OWNER',
-    GET_RESTART     : 'LOGIN_GET_RESTART',
-    NEW_OWNER       : 'LOGIN_NEW_OWNER'
-};
-
-const BOARD_ACTIONS = {
-    RESET       : 'BOARD_RESET',
-    NEXT_PIECES : 'BOARD_NEXT_PIECES',
-    NEW_PIECES  : 'BOARD_NEW_PIECES',
-    UPDATE      : 'BOARD_UPDATE',
-    GET_UPDATE  : 'BOARD_GET_UPDATE',
-    REMOVE_LINE : 'BOARD_REMOVE_LINE',
-    OVER_LINE   : 'BOARD_OVER_LINE'
-};
+const ACTIONS = require('../stateActions.js');
 
 const TYPES = {
     GAME    : 'game',
@@ -206,7 +185,7 @@ exports.leaveGameRoom = (socket) => {
 exports.getGameRooms = () => {
 
     return {
-        type    : LOGIN_ACTIONS.GET_ROOMS,
+        type    : ACTIONS.LOGIN.GET_ROOMS,
         rooms   : getOpenGameRooms()
     };
 };
@@ -216,7 +195,7 @@ exports.roomOwner = (socket, gameRoom) => {
     let owner = gameRoom.isOwner(socket);
 
     return {
-        type    : LOGIN_ACTIONS.GET_OWNER,
+        type    : ACTIONS.LOGIN.GET_OWNER,
         owner   : owner,
         started : gameRoom.start
     };
@@ -224,7 +203,7 @@ exports.roomOwner = (socket, gameRoom) => {
 
 exports.newRoomOwner = () => {
     return {
-        type    : LOGIN_ACTIONS.NEW_OWNER
+        type    : ACTIONS.LOGIN.NEW_OWNER
     };
 }
 
@@ -232,7 +211,7 @@ exports.startGame = (gameRoom) => {
     gameRoom.setStart();
 
     return {
-        type    : LOGIN_ACTIONS.GET_START
+        type    : ACTIONS.LOGIN.GET_START
     };
 };
 
@@ -240,12 +219,22 @@ exports.restart = (gameRoom) => {
     gameRoom.restart();
 
     return {
-        type    : LOGIN_ACTIONS.GET_RESTART
+        type    : ACTIONS.LOGIN.GET_RESTART
     };
 };
 
+exports.nameAvailable = (name) => {
+    let type = TYPES.PLAYER;
+    let available = (_rooms.getRoom(type, name)? false : true);
+
+    return {
+        type        : ACTIONS.LOGIN.NAME_AVAILABLE,
+        available   : available
+    };
+}
+
 exports.resetBoard = () => {
     return {
-        type    : BOARD_ACTIONS.RESET
+        type    : ACTIONS.BOARD.RESET
     };
 };

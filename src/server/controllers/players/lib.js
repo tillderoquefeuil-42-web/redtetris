@@ -1,12 +1,6 @@
 const Player = require('./Player.js');
 
-const BOARD_ACTIONS = {
-    NEXT_PIECES : 'BOARD_NEXT_PIECES',
-    NEW_PIECES  : 'BOARD_NEW_PIECES',
-    REMOVE_LINE : 'BOARD_REMOVE_LINE',
-    UPDATE      : 'BOARD_UPDATE',
-    GET_UPDATE  : 'BOARD_GET_UPDATE'
-};
+const ACTIONS = require('../stateActions.js');
 
 let _players = {
     collection  : {},
@@ -97,7 +91,7 @@ exports.delete = (socket) => {
     }
 };
 
-exports.getGamePlayers = (gameRoom) => {
+exports.getGamePlayers = (gameRoom, socket) => {
 
     let players = [];
     let label = gameRoom.label;
@@ -110,7 +104,7 @@ exports.getGamePlayers = (gameRoom) => {
     }
 
     return {
-        type    : BOARD_ACTIONS.GET_UPDATE,
+        type    : ACTIONS.BOARD.GET_UPDATE,
         players : players
     };
 };
@@ -128,7 +122,14 @@ exports.addLine = (socket, gameRoom, lines) => {
     }
 
     return {
-        type    : BOARD_ACTIONS.GET_UPDATE,
+        type    : ACTIONS.BOARD.GET_UPDATE,
         players : players
+    };
+};
+
+exports.getPlayerId = (player) => {
+    return {
+        type        : ACTIONS.LOGIN.GET_ID,
+        unique_id   : player.uniqueId
     };
 };

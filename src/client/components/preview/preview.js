@@ -11,7 +11,7 @@ const Previews = (props) => {
         return null;
     }
 
-    let players = utils.getOtherPlayers(props.players, props.name);
+    let players = utils.getOtherPlayers(props.players, props.login_id);
 
     let previews = [];
     for (let i in players){
@@ -49,6 +49,7 @@ const Preview = (props) => {
 function mapStateToProps(state) {
     return {
         players     : state.board.players,
+        login_id    : state.login.id,
         name        : state.login.name
     };
 }

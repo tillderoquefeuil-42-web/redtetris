@@ -5,6 +5,7 @@ import { Wrapper } from './styles.js';
 import { Button } from '../styles.js';
 
 import useEventListener from '../eventListener/eventListener.js';
+import utils from '../board/utils.js';
 
 
 function start(props) {
@@ -13,18 +14,6 @@ function start(props) {
 
 function backToRoom(props) {
     props.dispatch({ type: 'LOGIN_RESET_ROOM' });
-}
-
-function getWaitingPlayers(players, name) {
-    let waiting = [];
-
-    for (let i in players){
-        if (players[i].name !== name){
-            waiting.push(players[i]);
-        }
-    }
-
-    return waiting;
 }
 
 const WaitingPlayers = (props) => {
@@ -59,11 +48,13 @@ const Waiting = (props) => {
     const handler = useCallback(handleKeyPress, [props]);
     useEventListener('keydown', handler);
 
+    let players = utils.getOtherPlayers(props.players, props.login_id);
+
     return (
         <Wrapper>
             <h2>{ props.name } - { props.room }</h2>
 
-            <WaitingPlayers players={ getWaitingPlayers(props.players, props.name) } />
+            <WaitingPlayers players={ players } />
 
             {
                 props.owner?
@@ -80,10 +71,11 @@ const Waiting = (props) => {
 
 function mapStateToProps(state) {
     return {
-        name    : state.login.name,
-        room    : state.login.room,
-        owner   : state.login.owner,
-        players : state.board.players
+        name        : state.login.name,
+        room        : state.login.room,
+        login_id    : state.login.id,
+        owner       : state.login.owner,
+        players     : state.board.players
     };
 }
 

@@ -300,7 +300,7 @@ const Board = (props) => {
 
     // MANAGE OVERLINE
     useEffect(() => {
-        let player = utils.getPlayerState(props.players, props.name);
+        let player = utils.getPlayerState(props.players, props.login_id);
         let overLine = props.over_line;
         if (player && player.overLine && !props.game_over && newPiece){
             setNewPiece(false);
@@ -441,6 +441,7 @@ function mapStateToProps(state) {
         score       : state.board.score,
         game_over   : state.board.game_over,
         name        : state.login.name,
+        login_id    : state.login.id,
         owner       : state.login.owner
     };
 };

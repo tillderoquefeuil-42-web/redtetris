@@ -25,8 +25,13 @@ class Player {
             blocks      : this.blocks,
             gameOver    : this.gameOver,
             overLine    : this.overLine,
-            viewer      : this.viewer
+            viewer      : this.viewer,
+            uniqueId    : this.uniqueId
         };
+    }
+    
+    get uniqueId() {
+        return (this.name + this.id.slice(0, 5));
     }
 
     setName(name) {

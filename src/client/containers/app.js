@@ -14,7 +14,7 @@ function getRoute(props) {
   if (props.viewer){
     return <Viewer />
   } else if (props.start){
-    return <Board key={ props.unique_id } />
+    return <Board />
   }
 
   return <Login />
@@ -53,7 +53,6 @@ const mapStateToProps = state => ({
   logged    : state.login.logged,
   start     : state.login.start,
   viewer    : state.login.viewer,
-  unique_id : state.login.unique_id,
   owner     : state.login.owner,
   hash      : state.router.location.hash,
 });

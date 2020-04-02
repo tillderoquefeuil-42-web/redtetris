@@ -1,0 +1,34 @@
+
+exports.LOGIN = {
+    UPDATE_NAME         : 'LOGIN_UPDATE_NAME',
+    SET_NAME            : 'LOGIN_SET_NAME',
+    GET_ID              : 'LOGIN_GET_ID',
+    
+    GET_ROOMS           : 'LOGIN_GET_ROOMS',
+    UPDATE_ROOM         : 'LOGIN_UPDATE_ROOM',
+    SET_ROOM            : 'LOGIN_SET_ROOM',
+    
+    URL_LOGGING         : 'LOGIN_URL_LOGGING',
+
+    GET_OWNER           : 'LOGIN_GET_OWNER',
+    NEW_OWNER           : 'LOGIN_NEW_OWNER',
+    GET_ROOM_OWNER      : 'LOGIN_GET_ROOM_OWNER',
+    
+    START               : 'LOGIN_START',
+    GET_START           : 'LOGIN_GET_START',
+
+    RESET_ROOM          : 'LOGIN_RESET_ROOM',
+
+    RESTART             : 'LOGIN_RESTART',
+    GET_RESTART         : 'LOGIN_GET_RESTART',
+};
+
+exports.BOARD = {
+    RESET       : 'BOARD_RESET',
+    NEXT_PIECES : 'BOARD_NEXT_PIECES',
+    NEW_PIECES  : 'BOARD_NEW_PIECES',
+    UPDATE      : 'BOARD_UPDATE',
+    GET_UPDATE  : 'BOARD_GET_UPDATE',
+    REMOVE_LINE : 'BOARD_REMOVE_LINE',
+    OVER_LINE   : 'BOARD_OVER_LINE'
+};

@@ -13,10 +13,10 @@ const defaultBlock = { plain : 0 };
 
 // MANAGE PLAYERS
 
-utils.getPlayerState = (players, name) => {
+utils.getPlayerState = (players, loginId) => {
 
     for (let i in players){
-        if (players[i].name === name){
+        if (players[i].uniqueId === loginId){
             return players[i];
         }
     }
@@ -24,11 +24,11 @@ utils.getPlayerState = (players, name) => {
     return null;
 };
 
-utils.getOtherPlayers = (players, name) => {
+utils.getOtherPlayers = (players, loginId) => {
     let others = [];
 
     for (let i in players){
-        if (players[i].name !== name && !players[i].viewer){
+        if (players[i].uniqueId !== loginId && !players[i].viewer){
             others.push(players[i]);
         }
     }
