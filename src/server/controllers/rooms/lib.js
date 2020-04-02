@@ -1,7 +1,5 @@
 const Room = require('./Room.js');
 
-const ACTIONS = require('../stateActions.js');
-
 const TYPES = {
     GAME    : 'game',
     PLAYER  : 'player'
@@ -10,40 +8,45 @@ const TYPES = {
 let _rooms = {
     collection      : {},
 
-    getRoom         : (type, name, socket=null) => {
+    createRoom              : (type, socket=null) => {
         let _this = _rooms;
-        if (_this.collection[type] && _this.collection[type][name]){
-            return _this.collection[type][name];
-        }
 
-        if (socket){
-            let room = new Room({ type, name, socket });
-            _this.pushRoom(room);
-            return room;
-        }
-
-        return null;
+        let room = new Room({ type, socket });
+        _this.pushRoom(room);
+        return room;
     },
 
-    pushRoom        : (room) => {
+    pushRoom                : (room) => {
         let _this = _rooms;
 
         if (!_this.collection[room.type]){
             _this.collection[room.type] = {};
         }
 
-        _this.collection[room.type][room.name] = room;
+        _this.collection[room.type][room.id] = room;
     },
 
-    deleteRoom      : (room) => {
+    deleteRoom              : (room) => {
         let _this = _rooms;
 
-        if (_this.collection[room.type] && _this.collection[room.type][room.name]){
-            delete _this.collection[room.type][room.name];
+        if (_this.collection[room.type] && _this.collection[room.type][room.id]){
+            delete _this.collection[room.type][room.id];
         }
     },
 
-    getSocketRooms  : (socket) => {
+    getRoomById             : (id) => {
+        let _this = _rooms;
+
+        for (let i in _this.collection){
+            let rooms = _this.collection[i];
+
+            if (rooms && rooms[id]){
+                return rooms[id];
+            }
+        }
+    },
+
+    getSocketRooms          : (socket) => {
         let _this = _rooms;
         let data = [];
 
@@ -85,7 +88,6 @@ function joinRoom(socket, room) {
 };
 
 function leaveRoom(socket, room) {
-    
     room.removeClient(socket);
     socket.leave(room.label);
     
@@ -97,82 +99,51 @@ function leaveRoom(socket, room) {
     return room;
 };
 
-function getOpenGameRooms() {
+function leaveRoomsByType(socket, type) {
+    let rooms = _rooms.getSocketRoomsByType(socket, type);
 
-    let openGameRooms = [];
-    let gameRooms = _rooms.collection.game;
-
-    if (gameRooms){
-        for (let i in gameRooms){
-            if (gameRooms[i].active){
-                openGameRooms.push(gameRooms[i].light);
-            }
-        }
-    }
-
-    return openGameRooms;
-};
-
-
-exports.socketLeave = (socket) => {
-    let rooms = _rooms.getSocketRooms(socket);
-    let newOwners = [];
-
-    for (let i in rooms){
-
-        let room = rooms[i];
-        let owner = room.owner;
-
-        room = leaveRoom(socket, room);
-
-        if (room && owner != room.owner) {
-            newOwners.push(room);
-        }
-    }
-
-    return newOwners;
-};
-
-exports.getPlayerRoom = (name, socket=null) => {
-    let type = TYPES.PLAYER;
-    let room = _rooms.getRoom(type, name, socket);
-
-    return room;
-};
-
-exports.joinPlayerRoom = (socket, name) => {
-    let rooms = _rooms.getSocketRoomsByType(socket, TYPES.PLAYER);
     for (let i in rooms){
         leaveRoom(socket, rooms[i]);
     }
+}
 
-    let room = this.getPlayerRoom(name, socket);
+function getRoomByType(socket, type) {
+    let rooms = _rooms.getSocketRoomsByType(socket, type);
+
+    if (rooms && rooms.length > 0){
+        return rooms[0];
+    }
+
+    let room = _rooms.createRoom(type, socket);
     joinRoom(socket, room);
 
     return room;
 };
 
-exports.getGameRoom = (name, socket=null) => {
-    let type = TYPES.GAME;
-    let room = _rooms.getRoom(type, name, socket);
 
-    return room;
+//GET ALL ROOMS
+exports.getRoomsByTypeForSocket = (socket) => {
+
+    let rooms = {};
+
+    rooms[TYPES.PLAYER] = _rooms.getSocketRoomsByType(socket, TYPES.PLAYER)[0];
+    rooms[TYPES.GAME] = _rooms.getSocketRoomsByType(socket, TYPES.GAME)[0];
+
+    return rooms;
 };
 
-exports.joinGameRoom = (socket, name) => {
-    let rooms = _rooms.getSocketRoomsByType(socket, TYPES.GAME);
-    for (let i in rooms){
-        leaveRoom(socket, rooms[i]);
+//LEAVE ONE ROOM
+exports.leaveOneRoom = (socket, room) => {
+    if (room){
+        leaveRoom(socket, room);
     }
-
-    let room = this.getGameRoom(name, socket);
-    room = joinRoom(socket, room);
-
-    return room;
 };
 
-exports.leaveGameRoom = (socket) => {
-    let rooms = _rooms.getSocketRoomsByType(socket, TYPES.GAME);
+
+//LEAVE ALL ROOMS
+
+exports.socketLeave = (socket) => {
+    let rooms = _rooms.getSocketRooms(socket);
 
     for (let i in rooms){
         leaveRoom(socket, rooms[i]);
@@ -181,60 +152,45 @@ exports.leaveGameRoom = (socket) => {
     return;
 };
 
+//PLAYER ROOM
 
-exports.getGameRooms = () => {
-
-    return {
-        type    : ACTIONS.LOGIN.GET_ROOMS,
-        rooms   : getOpenGameRooms()
-    };
-};
-
-exports.roomOwner = (socket, gameRoom) => {
-
-    let owner = gameRoom.isOwner(socket);
-
-    return {
-        type    : ACTIONS.LOGIN.GET_OWNER,
-        owner   : owner,
-        started : gameRoom.start
-    };
-};
-
-exports.newRoomOwner = () => {
-    return {
-        type    : ACTIONS.LOGIN.NEW_OWNER
-    };
-}
-
-exports.startGame = (gameRoom) => {
-    gameRoom.setStart();
-
-    return {
-        type    : ACTIONS.LOGIN.GET_START
-    };
-};
-
-exports.restart = (gameRoom) => {
-    gameRoom.restart();
-
-    return {
-        type    : ACTIONS.LOGIN.GET_RESTART
-    };
-};
-
-exports.nameAvailable = (name) => {
+exports.getPlayerRoom = (socket) => {
     let type = TYPES.PLAYER;
-    let available = (_rooms.getRoom(type, name)? false : true);
-
-    return {
-        type        : ACTIONS.LOGIN.NAME_AVAILABLE,
-        available   : available
-    };
-}
-
-exports.resetBoard = () => {
-    return {
-        type    : ACTIONS.BOARD.RESET
-    };
+    return getRoomByType(socket, type);
 };
+
+// GAME ROOM
+
+exports.getGameRoom = (socket) => {
+    let type = TYPES.GAME;
+    return getRoomByType(socket, type);
+};
+
+exports.joinGameRoom = (socket, roomId) => {
+    leaveRoomsByType(socket, TYPES.GAME);
+
+    let room = _rooms.getRoomById(roomId);
+
+    if (room) {
+        joinRoom(socket, room);
+        return room;
+    }
+
+    return null;
+};
+
+exports.leaveGameRoom = (socket) => {
+    leaveRoomsByType(socket, TYPES.GAME);
+};
+
+exports.getRoomByAssetId = (type, assetId) => {
+    let c = _rooms.collection[type];
+
+    for (let i in c){
+        if (c[i].assetId === assetId){
+            return c[i];
+        }
+    }
+
+    return null;
+}

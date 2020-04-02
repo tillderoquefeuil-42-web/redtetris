@@ -1,10 +1,6 @@
 const socketServer = require('socket.io');
 
-const lib = {
-    pieces  : require('./pieces/lib.js'),
-    rooms   : require('./rooms/lib.js'),
-    players : require('./players/lib.js')
-};
+const library = require('./lib.js');
 
 const ACTIONS = require('./stateActions.js');
 
@@ -25,147 +21,151 @@ module.exports = function (app, server) {
         connections.push(socket);
 
         socket.on('disconnect', () => {
-            let rooms = lib.rooms.socketLeave(socket);
-
-            for (let i in rooms){
-                let room = rooms[i];
-                io.sockets.in(room.label).emit('ACTION', lib.rooms.newRoomOwner());
+            let gameRoom = library.leaveGameRoom(socket);
+            if (gameRoom) {
+                io.sockets.in(gameRoom.label).emit('ACTION', library.newRoomOwner());
             }
 
-            lib.players.delete(socket);
+            library.leavePlayerRoom(socket);
         });
 
         socket.on(ACTIONS.LOGIN.SET_NAME, (data) => {
-            let playerRoom = lib.rooms.joinPlayerRoom(socket, data.login.name);
-
+            let playerRoom = library.getPlayerRoom(socket);
+            let player = library.updatePlayer({ player:playerRoom }, data);
+            
             if (playerRoom){
-                io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.getGameRooms());
+                if (player){
+                    io.sockets.in(playerRoom.label).emit('ACTION', library.sendPlayerId(player));
+                }
+                io.sockets.in(playerRoom.label).emit('ACTION', library.getGames());
             }
         });
 
         socket.on(ACTIONS.LOGIN.SET_ROOM, (data) => {
+            let rooms = library.joinGameRoom(socket, data);
 
-            let playerRoom = lib.rooms.getPlayerRoom(data.login.name);
-            let gameRoom = lib.rooms.joinGameRoom(socket, data.login.room);
+            library.updatePlayer(rooms, data);
 
-            let player = lib.players.updatePlayer(socket, playerRoom, gameRoom);
-            if (player && playerRoom){
-                io.sockets.in(playerRoom.label).emit('ACTION', lib.players.getPlayerId(player));
-            }
-
-
-            if (playerRoom && gameRoom){
-                io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.roomOwner(socket, gameRoom));
-                io.sockets.in(gameRoom.label).emit('ACTION', lib.players.getGamePlayers(gameRoom));
+            if (rooms.player && rooms.game){
+                io.sockets.in(rooms.player.label).emit('ACTION', library.roomOwner(rooms));
+                io.sockets.in(rooms.game.label).emit('ACTION', library.getGamePlayers(rooms));
             }
         });
 
         socket.on(ACTIONS.LOGIN.URL_LOGGING, (data) => {
+            let playerRoom = library.getPlayerRoom(socket);
+            let player = library.updatePlayer({ player:playerRoom }, data);
 
-            let playerRoom = lib.rooms.joinPlayerRoom(socket, data.login.name);
-            let gameRoom = lib.rooms.joinGameRoom(socket, data.login.room);
+            let rooms = library.joinGameRoom(socket, data);
 
-            let player = lib.players.updatePlayer(socket, playerRoom, gameRoom);
-            if (player && playerRoom){
-                io.sockets.in(playerRoom.label).emit('ACTION', lib.players.getPlayerId(player));
+            player = library.updatePlayer(rooms, data);
+
+            if (player && rooms.player){
+                io.sockets.in(rooms.player.label).emit('ACTION', library.sendPlayerId(player));
             }
 
-
-            if (playerRoom && gameRoom){
-                io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.roomOwner(socket, gameRoom));
-                io.sockets.in(gameRoom.label).emit('ACTION', lib.players.getGamePlayers(gameRoom));
-            }
-        });
-
-        socket.on(ACTIONS.LOGIN.GET_ROOM_OWNER, (data) => {
-
-            let playerRoom = lib.rooms.getPlayerRoom(data.login.name, socket);
-            let gameRoom = lib.rooms.getGameRoom(data.login.room, socket);
-
-            if (playerRoom && gameRoom){
-                io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.roomOwner(socket, gameRoom));
+            if (rooms.player && rooms.game){
+                io.sockets.in(rooms.player.label).emit('ACTION', library.roomOwner(rooms));
+                io.sockets.in(rooms.game.label).emit('ACTION', library.getGamePlayers(rooms));
             }
         });
 
-        socket.on(ACTIONS.LOGIN.RESET_ROOM, (data) => {
+        socket.on(ACTIONS.LOGIN.GET_ROOM_OWNER, () => {
+            let rooms = library.getRooms(socket);
 
-            let gameRoom = lib.rooms.getGameRoom(data.login.room);
-            let isOwner = gameRoom? gameRoom.isOwner(socket) : null;
+            if (rooms.player && rooms.game){
+                io.sockets.in(rooms.player.label).emit('ACTION', library.roomOwner(rooms));
+            }
+        });
 
-            lib.rooms.leaveGameRoom(socket);
-            lib.players.leaveGameRoom(socket);
+        socket.on(ACTIONS.LOGIN.RESET_ROOM, () => {
+            let rooms = library.getRooms(socket);
             
-            if (gameRoom){
-                if (isOwner){
-                    io.sockets.in(gameRoom.label).emit('ACTION', lib.rooms.newRoomOwner());
-                }
-                io.sockets.in(gameRoom.label).emit('ACTION', lib.players.getGamePlayers(gameRoom));
+            let gameRoom = library.leaveGameRoom(socket);
+            
+            // NEW OWNER
+            if (gameRoom) {
+                io.sockets.in(gameRoom.label).emit('ACTION', library.newRoomOwner());
+            }
+            
+            // MAJ GAME PLAYERS
+            if (rooms.game && rooms.game.clients.length > 0){
+                io.sockets.in(rooms.game.label).emit('ACTION', library.getGamePlayers(rooms));
             }
 
-            let playerRoom = lib.rooms.getPlayerRoom(data.login.name);
-            if (playerRoom){
-                io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.getGameRooms());
+            // GET AVAILABLE GAMES
+            if (rooms.player){
+                io.sockets.in(rooms.player.label).emit('ACTION', library.getGames());
             }
 
         });
 
-        socket.on(ACTIONS.LOGIN.START, (data) => {
-            let gameRoom = lib.rooms.getGameRoom(data.login.room);
-            if (gameRoom && gameRoom.isOwner(socket)){
-                io.sockets.in(gameRoom.label).emit('ACTION', lib.rooms.startGame(gameRoom));
-                io.sockets.in(gameRoom.label).emit('ACTION', lib.pieces.getPiecesSet(gameRoom.gameLabel, 0));
-                io.sockets.in(gameRoom.label).emit('ACTION', lib.players.getGamePlayers(gameRoom));
+        socket.on(ACTIONS.LOGIN.START, () => {
+            let rooms = library.getOwnerGameRoom(socket);
+
+            if (rooms && rooms.game){
+                io.sockets.in(rooms.game.label).emit('ACTION', library.startGame(rooms));
+                io.sockets.in(rooms.game.label).emit('ACTION', library.getPiecesSet(rooms, 0));
+                io.sockets.in(rooms.game.label).emit('ACTION', library.getGamePlayers(rooms));
+
             }
         });
 
         socket.on(ACTIONS.LOGIN.RESTART, (data) => {
-            let gameRoom = lib.rooms.getGameRoom(data.login.room);
+            let [rooms, player, game] = library.getRoomsAndAssets(socket);
 
-            if (gameRoom && gameRoom.isOwner(socket) && !data.back_to_room){
-                lib.players.restartPlayers(gameRoom);
-                io.sockets.in(gameRoom.label).emit('ACTION', lib.rooms.restart(gameRoom));
-                io.sockets.in(gameRoom.label).emit('ACTION', lib.rooms.resetBoard());
-            } else if (gameRoom && data.back_to_room){
-                let isOwner = gameRoom.isOwner(socket);
+            if (!rooms.game){
+                return;
+            }
 
-                lib.players.restartOnePlayer(socket);
-                lib.rooms.leaveGameRoom(socket);
+            if (library.isOwner(game, player) && !data.back_to_room){
+                library.restartPlayerBoards(game);
 
-                if (isOwner){
-                    io.sockets.in(gameRoom.label).emit('ACTION', lib.rooms.newRoomOwner());
+                io.sockets.in(rooms.game.label).emit('ACTION', library.restart(game));
+                io.sockets.in(rooms.game.label).emit('ACTION', library.resetBoard());
+
+            } else if (data.back_to_room){
+
+                let gameRoom = library.leaveGameRoom(socket);
+            
+                // NEW OWNER
+                if (gameRoom) {
+                    io.sockets.in(gameRoom.label).emit('ACTION', library.newRoomOwner());
                 }
-
-                let playerRoom = lib.rooms.getPlayerRoom(data.login.name);
-                if (playerRoom){
-                    io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.getGameRooms());
-                    io.sockets.in(playerRoom.label).emit('ACTION', lib.rooms.resetBoard());
-                }    
+                // MAJ GAME PLAYERS
+                if (rooms.game && rooms.game.clients.length > 0){
+                    io.sockets.in(rooms.game.label).emit('ACTION', library.getGamePlayers(rooms));
+                }
+                // GET AVAILABLE GAMES
+                if (rooms.player){
+                    io.sockets.in(rooms.player.label).emit('ACTION', library.getGames());
+                    io.sockets.in(rooms.player.label).emit('ACTION', library.resetBoard());
+                }
             }
         });
 
         socket.on(ACTIONS.BOARD.NEW_PIECES, (data) => {
-            let gameRoom = lib.rooms.getGameRoom(data.login.room);
+            let rooms = library.getRooms(socket);
 
-            if (gameRoom){
-                io.sockets.in(gameRoom.label).emit('ACTION', lib.pieces.getPiecesSet(gameRoom.label, data.board.index));
+            if (rooms.game){
+                io.sockets.in(rooms.game.label).emit('ACTION', library.getPiecesSet(rooms, data.board.index));
             }
         });
 
         socket.on(ACTIONS.BOARD.UPDATE, (data) => {
-            let playerRoom = lib.rooms.getPlayerRoom(data.login.name);
-            let gameRoom = lib.rooms.getGameRoom(data.login.room);
+            let rooms = library.getRooms(socket);
 
-            if (gameRoom){
-                lib.players.updatePlayer(socket, playerRoom, gameRoom, data.board);
-                io.sockets.in(gameRoom.label).emit('ACTION', lib.players.getGamePlayers(gameRoom));
+            library.updatePlayer(rooms, data);
+            if (rooms.game){
+                io.sockets.in(rooms.game.label).emit('ACTION', library.getGamePlayers(rooms));
             }
         });
 
         socket.on(ACTIONS.BOARD.REMOVE_LINE, (data) => {
-            let gameRoom = lib.rooms.getGameRoom(data.login.room);
+            let rooms = library.getRooms(socket);
 
-            if (gameRoom){
-                io.sockets.in(gameRoom.label).emit('ACTION', lib.players.addLine(socket, gameRoom, data.board.lines));
+            if (rooms.game){
+                io.sockets.in(rooms.game.label).emit('ACTION', library.addLines(rooms, data));
             }
         });
 

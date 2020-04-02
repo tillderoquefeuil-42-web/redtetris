@@ -65,7 +65,7 @@ const reducer = (state = initialState , action) => {
     switch(action.type){
     // MANAGE ID
     case LOGIN_ACTIONS.GET_ID:
-        data.id = action.unique_id;
+        data.id = action.player_id;
         return data;
 
     // MANAGE NAME

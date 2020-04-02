@@ -5,16 +5,17 @@ const ACTIONS = require('../stateActions.js');
 let _players = {
     collection  : {},
 
+    createPlayer    : (name, playerRoom, gameRoom) => {
+        let player = new Player({ name:name, playerRoom, gameRoom });
+        _players.pushPlayer(player);
+
+        return player;
+    },
+
     pushPlayer      : (player) => {
         let _this = _players;
 
         _this.collection[player.id] = player;
-    },
-
-    getById         : (socket) => {
-        let _this = _players;
-
-        return _this.collection[socket.id];
     },
 
     deletePlayer    : (player) => {
@@ -25,111 +26,84 @@ let _players = {
         }
     },
 
-};
+    getById         : (id) => {
+        let _this = _players;
 
-
-function addPlayer(socket, playerRoom, gameRoom) {
-    player = new Player({ socket, name:playerRoom.name, gameRoom });
-    _players.pushPlayer(player);
-
-    return player;
-};
-
-
-exports.updatePlayer = (socket, playerRoom, gameRoom, board) => {
-
-    let player = _players.getById(socket);
-
-    if (!player){
-        return addPlayer(socket, playerRoom, gameRoom);
-    }
-
-    player.setName(playerRoom.name);
-    player.setGameRoom(gameRoom);
-    player.updateBoard(board);
-
-    return player;
-};
-
-
-exports.restartPlayers = (gameRoom) => {
-
-    let clients = gameRoom.clients;
-
-    for (let i in clients){
-        let player = _players.collection[clients[i]];
-        
-        if (player){
-            player.restart();
-        }
+        return _this.collection[id];
     }
 };
 
-exports.restartOnePlayer = (socket) => {
-    let player = _players.getById(socket);
+exports.getPlayerByRoom = (playerRoom) => {
+    return _players.getById(playerRoom.assetId);
+}
+
+exports.leaveGameRoom = (player) => {
 
     if (player){
-        player.restart();
-    }
-};
-
-exports.leaveGameRoom = (socket) => {
-    let player = _players.getById(socket);
-
-    if (player){
-        player.setGameRoom(null);
+        player.setGameRoomId(null);
+        player.resetBoard();
     }
 
     return player;
 };
 
-exports.delete = (socket) => {
-    let player = _players.getById(socket);
+exports.deletePlayer = (player) => {
 
     if (player){
         _players.deletePlayer(player);
     }
 };
 
-exports.getGamePlayers = (gameRoom, socket) => {
+exports.updatePlayer = (name, playerRoom, gameRoom, board) => {
+    let player = _players.getById(playerRoom.assetId);
 
-    let players = [];
-    let label = gameRoom.label;
-
-    for (let i in _players.collection){
-        let player = _players.collection[i];
-        if (player.gameRoom && label === player.gameRoom.label){
-            players.push(player.light);
-        }
+    //CREATION
+    if (!player){
+        player = _players.createPlayer(name, playerRoom, gameRoom);
+        playerRoom.setAssetId(player);
+        return player;
     }
 
-    return {
-        type    : ACTIONS.BOARD.GET_UPDATE,
-        players : players
-    };
+    //UPDATE
+    player.setName(name);
+    player.setGameRoomId(gameRoom);
+    player.updateBoard(board);
+
+    return player;
 };
 
-exports.addLine = (socket, gameRoom, lines) => {
-    let players = [];
-    let label = gameRoom.label;
-
-    for (let i in _players.collection){
-        let player = _players.collection[i];
-        if (label === player.gameRoom.label && !player.viewer){
-            player.addOverline(socket, lines);
-            players.push(player.light);
+exports.restartPlayers = (game) => {
+    for (let i in game.playersId){
+        let player = _players.getById(game.playersId[i]);
+            
+        if (player){
+            player.resetBoard();
         }
     }
-
-    return {
-        type    : ACTIONS.BOARD.GET_UPDATE,
-        players : players
-    };
 };
 
-exports.getPlayerId = (player) => {
-    return {
-        type        : ACTIONS.LOGIN.GET_ID,
-        unique_id   : player.uniqueId
-    };
+exports.getGamePlayers = (game) => {
+    let players = [];
+
+    for (let i in game.players){
+        let player = _players.getById(game.players[i]);
+        players.push(player.light);
+    }
+
+    return players;
 };
+
+exports.addLine = (game, playerId, lines) => {
+    let players = [];
+
+    for (let i in game.players){
+        let player = _players.getById(game.players[i]);
+        if (player.id !== playerId && !player.viewer){
+            player.addOverline(lines);
+        }
+        players.push(player.light);
+    }
+
+    return players;
+};
+

@@ -1,43 +1,19 @@
+function createId(type, socket) {
+    return `${type}_${Date.now()}_${socket.id.slice(0, 5)}`;
+}
+
 class Room {
 
-    constructor({ type, name, socket }) {
+    constructor({ type, socket }) {
         this.type = type;
-        this.name = name;
-        this.owner = socket.id;
-        this.creation_date = Date.now();
-        this.update_date = Date.now();
-        this.active = true;
-        this.start = false;
         this.clients = [];
+        this.id = createId(type, socket);
+
+        this.assetId = null;
     }
 
     get label() {
-        return this.type + '_' + this.name + '_' + this.creation_date;
-    }
-
-    get gameLabel() {
-        return this.type + '_' + this.name + '_' + this.update_date;
-    }
-
-    get light() {
-        return {
-            name        : this.name,
-            type        : this.type,
-            start       : this.start
-        };
-    }
-
-    restart() {
-        this.start = false;
-        this.update_date = Date.now();
-    }
-
-    isOwner(socket){
-        if (socket.id === this.owner){
-            return true;
-        }
-
-        return false
+        return this.id;
     }
 
     isClient(socket){
@@ -56,10 +32,6 @@ class Room {
             this.clients.push(id);
 
         }
-
-        if (!this.owner){
-            this.owner = id;
-        }
     }
 
     removeClient(socket) {
@@ -69,15 +41,15 @@ class Room {
 
         if (index !== -1){
             this.clients.splice(index, 1);
-
-            if (this.isOwner(socket)){
-                this.owner = this.clients[0];
-            }
         }
     }
 
-    setStart() {
-        this.start = true;
+    setAssetId(asset) {
+        if (asset){
+            this.assetId = asset.id;
+        } else {
+            this.assetId = null;
+        }
     }
 
 };

@@ -16,7 +16,7 @@ const defaultBlock = { plain : 0 };
 utils.getPlayerState = (players, loginId) => {
 
     for (let i in players){
-        if (players[i].uniqueId === loginId){
+        if (players[i].id === loginId){
             return players[i];
         }
     }
@@ -28,7 +28,7 @@ utils.getOtherPlayers = (players, loginId) => {
     let others = [];
 
     for (let i in players){
-        if (players[i].uniqueId !== loginId && !players[i].viewer){
+        if (players[i].id !== loginId && !players[i].viewer){
             others.push(players[i]);
         }
     }

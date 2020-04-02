@@ -1,55 +1,59 @@
+function createId(name) {
+    return `${name}_${Date.now()}`;
+}
+
+
 class Player {
 
-    constructor({ name, socket, gameRoom, board }) {
+    constructor({ name, playerRoom, gameRoom }) {
+        
         this.name = name;
-        this.id = socket.id;
-        this.viewer = false;
+        this.id = createId(name);
+
+        this.gameRoomId = null;
+        this.playerRoomId = null;
+
         this.score = 0;
+        this.overLine = 0;
         this.blocks = [];
         this.gameOver = false;
-        this.overLine = 0;
+        this.viewer = false;
 
-        if (board) {
-            this.updateBoard(board);
+        if (playerRoom){
+            this.setPlayerRoomId(playerRoom)
         }
-
+        
         if (gameRoom){
-            this.setGameRoom(gameRoom)
+            this.setGameRoomId(gameRoom);
         }
     }
-
+    
     get light() {
         return {
+            id          : this.id,
             name        : this.name,
             score       : this.score,
             blocks      : this.blocks,
             gameOver    : this.gameOver,
             overLine    : this.overLine,
-            viewer      : this.viewer,
-            uniqueId    : this.uniqueId
+            viewer      : this.viewer
         };
     }
     
-    get uniqueId() {
-        return (this.name + this.id.slice(0, 5));
-    }
-
     setName(name) {
         this.name = name;
     }
-
-    setGameRoom(gameRoom) {
-        if (!this.gameRoom && gameRoom && gameRoom.start){
-            this.viewer = true;
-        }
-
-        this.gameRoom = gameRoom;
+    
+    setPlayerRoomId(playerRoom) {
+        this.playerRoomId = playerRoom.id;
     }
 
-    addOverline(socket, lines) {
-        if (socket.id !== this.id){
-            this.overLine += lines;
+    setGameRoomId(gameRoom) {
+        if (!this.gameRoomId && gameRoom && gameRoom.start){
+            this.viewer = true;
         }
+        
+        this.gameRoomId = (gameRoom? gameRoom.id : null);
     }
 
     updateBoard(board) {
@@ -59,8 +63,8 @@ class Player {
             this.score = board.score;
         }
     }
-    
-    restart() {
+
+    resetBoard() {
         this.viewer = false;
         this.score = 0;
         this.blocks = [];
@@ -70,6 +74,9 @@ class Player {
         return this;
     }
 
+    addOverline(lines) {
+        this.overLine += lines;
+    }
 
 };
 
