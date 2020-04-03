@@ -1,14 +1,17 @@
 export const BOARD_ACTIONS = {
-    RESET       : 'BOARD_RESET',
-    NEXT_PIECES : 'BOARD_NEXT_PIECES',
-    NEW_PIECES  : 'BOARD_NEW_PIECES',
-    UPDATE      : 'BOARD_UPDATE',
-    GET_UPDATE  : 'BOARD_GET_UPDATE',
-    REMOVE_LINE : 'BOARD_REMOVE_LINE',
-    OVER_LINE   : 'BOARD_OVER_LINE'
+    SET_HARDMODE    : 'BOARD_SET_HARDMODE',
+    GET_HARDMODE    : 'BOARD_GET_HARDMODE',
+    RESET           : 'BOARD_RESET',
+    NEXT_PIECES     : 'BOARD_NEXT_PIECES',
+    NEW_PIECES      : 'BOARD_NEW_PIECES',
+    UPDATE          : 'BOARD_UPDATE',
+    GET_UPDATE      : 'BOARD_GET_UPDATE',
+    REMOVE_LINE     : 'BOARD_REMOVE_LINE',
+    OVER_LINE       : 'BOARD_OVER_LINE'
 };
 
 const initialState = {
+    hardmode    : false,
     score       : 0,
     blocks      : null,
     pieces      : [],
@@ -44,6 +47,10 @@ const reducer = (state = initialState , action) => {
     let data = getBoardStateCopy(state);
 
     switch(action.type){
+        case BOARD_ACTIONS.SET_HARDMODE:
+        case BOARD_ACTIONS.GET_HARDMODE:
+            data.hardmode = action.hardmode;
+            return data;
         case BOARD_ACTIONS.RESET:
             return reset(data);
         case BOARD_ACTIONS.NEXT_PIECES:

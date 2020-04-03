@@ -51,6 +51,10 @@ export const socketMiddleware = store => next => action => {
         case LOGIN_ACTIONS.GET_ROOM_OWNER:
             socketEmission(action.type, data);
             break;
+        case BOARD_ACTIONS.SET_HARDMODE:
+            data.board.hardmode = action.hardmode;
+            socketEmission(action.type, data);
+            break;
         case BOARD_ACTIONS.NEW_PIECES:
             socketEmission(action.type, data);
             break;

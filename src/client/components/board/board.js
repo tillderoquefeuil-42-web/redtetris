@@ -304,12 +304,13 @@ const Board = (props) => {
         let overLine = props.over_line;
         if (player && player.overLine && !props.game_over && newPiece){
             setNewPiece(false);
-            let _blocks;
+            let _blocks = props.blocks;
+            let change = (player.overLine > overLine? true : false);
             while (player.overLine > overLine){
-                _blocks = addStaticLine(props.blocks);
+                _blocks = addStaticLine(_blocks);
                 overLine++;
             }
-            if (_blocks){
+            if (change){
                 setCurrent(updateCurrent(_blocks, piece));
                 props.dispatch({ type: 'BOARD_OVER_LINE', over_line: player.overLine});
                 props.dispatch({ type: 'BOARD_UPDATE', blocks:_blocks });
@@ -342,6 +343,7 @@ const Board = (props) => {
 
         blocks = props.blocks;
         let _piece = handleAction(event.code, blocks, piece);
+        setNewPiece(false);
 
         //CURRENT PIECE IS STUCK
         if (_piece && _piece.END){
@@ -362,6 +364,7 @@ const Board = (props) => {
             setNewPiece(true);
 
             if (lines > 0){
+                lines = (props.hardmode? lines : 1);
                 props.dispatch({ type: 'BOARD_REMOVE_LINE', lines:lines });
             }
 
@@ -369,7 +372,9 @@ const Board = (props) => {
                 props.dispatch({ type: 'BOARD_UPDATE', game_over:true });
             } else {
                 setCurrent(updateCurrent(_blocks, _piece));
-                setDelay(updateDelay(delay, lines));
+                if (props.hardmode && lines){
+                    setDelay(updateDelay(delay, lines));
+                }
 
                 if (newPiecesNeeded(props.pieces, _piece)){
                     props.dispatch({ type: 'BOARD_NEW_PIECES' });
@@ -440,6 +445,7 @@ function mapStateToProps(state) {
         blocks      : state.board.blocks,
         score       : state.board.score,
         game_over   : state.board.game_over,
+        hardmode    : state.board.hardmode,
         name        : state.login.name,
         login_id    : state.login.id,
         owner       : state.login.owner

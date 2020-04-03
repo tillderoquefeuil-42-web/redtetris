@@ -15,6 +15,7 @@ class Game {
         
         this.start = false;
         this.ownerId = null;
+        this.hardmode = false;
 
         this.players = [];
         
@@ -92,6 +93,10 @@ class Game {
 
     setStart(start) {
         this.start = start;
+    }
+
+    setHardmode(hardmode) {
+        this.hardmode = hardmode;
     }
 
 };

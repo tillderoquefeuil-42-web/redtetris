@@ -170,6 +170,17 @@ exports.getGamePlayers = (rooms) => {
     };
 };
 
+exports.setHardmode = (rooms, data) => {
+    let [player, game] = getAssetsByRooms(rooms.game, rooms.player);
+    game = lib.games.setHardmode(game, data.board.hardmode);
+
+    return {
+        type        : ACTIONS.BOARD.GET_HARDMODE,
+        hardmode    : game.hardmode
+    };
+}
+
+
 exports.startGame = (rooms) => {
     let [player, game] = getAssetsByRooms(rooms.game, rooms.player);
     game.setStart(true);

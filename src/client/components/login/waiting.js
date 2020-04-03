@@ -16,6 +16,24 @@ function backToRoom(props) {
     props.dispatch({ type: 'LOGIN_RESET_ROOM' });
 }
 
+function optionsChanged(props, e) {
+    props.dispatch({ type: 'BOARD_SET_HARDMODE', hardmode:e.target.checked });
+}
+
+const Options = (props) => {
+
+    if (!props.owner){
+        return (<span>Current mode - { props.hardmode? 'hard' : 'soft' }</span>);
+    }
+
+    return (
+        <div>
+            <input type="checkbox" checked={ props.hardmode } onChange={ (e) => props.onChange(e) } />
+            <span>hardmode</span>
+        </div>
+    );
+};
+
 const WaitingPlayers = (props) => {
 
     let players = props.players;
@@ -37,6 +55,15 @@ const WaitingPlayers = (props) => {
     );
 };
 
+const Start = (props) => {
+
+    if (!props.owner){
+        return (<span>Waiting for owner to start</span>);
+    }
+
+    return (<Button onClick={ () => props.start() }>Start</Button>);
+};
+
 const Waiting = (props) => {
 
     const handleKeyPress = (event) => {
@@ -56,12 +83,9 @@ const Waiting = (props) => {
 
             <WaitingPlayers players={ players } />
 
-            {
-                props.owner?
-                <Button onClick={ () => start(props) }>Start</Button>
-                :
-                <span>Waiting for owner to start</span>
-            }
+            <Start owner={ props.owner } start={ () => start(props) } />
+
+            <Options owner={ props.owner } hardmode={ props.hardmode } onChange={ (e) => optionsChanged(props, e) } />
 
             <Button onClick={ () => backToRoom(props) }>Return</Button>
         </Wrapper>
@@ -75,6 +99,7 @@ function mapStateToProps(state) {
         room        : state.login.room,
         login_id    : state.login.id,
         owner       : state.login.owner,
+        hardmode    : state.board.hardmode,
         players     : state.board.players
     };
 }

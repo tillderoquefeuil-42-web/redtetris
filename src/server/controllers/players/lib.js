@@ -73,8 +73,8 @@ exports.updatePlayer = (name, playerRoom, gameRoom, board) => {
 };
 
 exports.restartPlayers = (game) => {
-    for (let i in game.playersId){
-        let player = _players.getById(game.playersId[i]);
+    for (let i in game.players){
+        let player = _players.getById(game.players[i]);
             
         if (player){
             player.resetBoard();

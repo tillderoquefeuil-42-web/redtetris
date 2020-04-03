@@ -78,6 +78,14 @@ module.exports = function (app, server) {
             }
         });
 
+        socket.on(ACTIONS.BOARD.SET_HARDMODE, (data) => {
+            let rooms = library.getRooms(socket);
+
+            if (rooms.game){
+                io.sockets.in(rooms.game.label).emit('ACTION', library.setHardmode(rooms, data));
+            }
+        });
+
         socket.on(ACTIONS.LOGIN.RESET_ROOM, () => {
             let rooms = library.getRooms(socket);
             

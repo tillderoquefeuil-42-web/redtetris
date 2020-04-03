@@ -88,3 +88,9 @@ exports.getGames = () => {
 
     return games;
 };
+
+exports.setHardmode = (game, hardmode) => {
+    game.setHardmode(hardmode);
+
+    return game;
+}
