@@ -1,7 +1,7 @@
 import ActionTypes from '../constants/ActionTypes';
 const BOARD_ACTIONS = ActionTypes.BOARD;
 
-const initialState = {
+export const initialState = {
     hardmode    : false,
     score       : 0,
     blocks      : null,

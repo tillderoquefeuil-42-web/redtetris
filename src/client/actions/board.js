@@ -22,3 +22,15 @@ export function newPieces() {
 export function removeLine() {
     return { type:ACTIONS.REMOVE_LINE };
 }
+
+export function reset() {
+    return { type:ACTIONS.RESET };
+}
+
+export function nextPieces(pieces, index) {
+    return { type:ACTIONS.NEXT_PIECES, pieces, index };
+}
+
+export function getUpdate(players) {
+    return { type:ACTIONS.GET_UPDATE, players };
+}
