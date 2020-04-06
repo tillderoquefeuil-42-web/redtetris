@@ -1,0 +1,4 @@
+{
+    "require": ["babel-core/register", "chai"],
+    "spec": "test/**/*.test.js"
+}
