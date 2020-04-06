@@ -1,6 +1,9 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 
+import * as loginActions from '../../actions/login';
+import * as boardActions from '../../actions/board';
+
 import { Wrapper } from './styles.js';
 import { Button } from '../styles.js';
 
@@ -9,15 +12,15 @@ import utils from '../board/utils.js';
 
 
 function start(props) {
-    props.dispatch({ type: 'LOGIN_START' });
+    props.dispatch(loginActions.start());
 }
 
 function backToRoom(props) {
-    props.dispatch({ type: 'LOGIN_RESET_ROOM' });
+    props.dispatch(loginActions.resetRoom());
 }
 
 function optionsChanged(props, e) {
-    props.dispatch({ type: 'BOARD_SET_HARDMODE', hardmode:e.target.checked });
+    props.dispatch(boardActions.setHardmode(e.target.checked));
 }
 
 const Options = (props) => {

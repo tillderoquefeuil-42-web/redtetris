@@ -1,13 +1,15 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 
+import * as loginActions from '../../actions/login';
+
 import useEventListener from '../eventListener/eventListener.js';
 import { checkInput } from '../../helpers/utils';
 import { Wrapper } from './styles.js';
 import { Button, TextInput } from '../styles.js';
 
 function updateName(props, value, force=false) {
-    props.dispatch({ type: 'LOGIN_UPDATE_NAME', login_name:value, login_force:force });
+    props.dispatch(loginActions.updateName(value, force));
 }
 
 function nameSetting({ props, event, force }){
@@ -22,7 +24,7 @@ function nameSetting({ props, event, force }){
     if ((value && checkInput(value)) || !value){
         updateName(props, value, force);
         if (force){
-            props.dispatch({ type: 'LOGIN_SET_NAME' });
+            props.dispatch(loginActions.setName());
         }
     }
 }

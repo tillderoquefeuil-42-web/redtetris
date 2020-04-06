@@ -2,6 +2,8 @@ import React from 'react'
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router'
 
+import * as loginActions from '../actions/login';
+
 import { Container, Title } from './styles.js';
 import Board from '../components/board/board';
 import Viewer from '../components/viewer/viewer';
@@ -25,11 +27,11 @@ const App = (props) => {
   let data = parseHash(props.hash);
 
   if (!props.logged && data.name && data.room){
-    props.dispatch({ type: 'LOGIN_URL_LOGGING', data:data });
+    props.dispatch(loginActions.urlLogging(data.name, data.room));
   }
   
   if (props.owner === null){
-    props.dispatch({ type: 'LOGIN_GET_ROOM_OWNER' });
+    props.dispatch(loginActions.getRoomOwner());
   }
 
   let hash = getHashFromProps(props);

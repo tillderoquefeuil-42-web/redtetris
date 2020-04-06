@@ -1,17 +1,19 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 
+import * as loginActions from '../../actions/login';
+
 import useEventListener from '../eventListener/eventListener.js';
 import { checkInput } from '../../helpers/utils';
 import { Wrapper, Span, AvailableRooms } from './styles.js';
 import { Button, TextInput } from '../styles.js';
 
 function updateRoom(props, value, force=false) {
-    props.dispatch({ type: 'LOGIN_UPDATE_ROOM', login_room:value, login_force:force });
+    props.dispatch(loginActions.updateRoom(value, force));
 }
 
 function backToName(props) {
-    props.dispatch({ type: 'LOGIN_UPDATE_NAME', login_name:'' });
+    props.dispatch(loginActions.updateName(''));
 }
 
 function roomSetting({ props, event, force }){
@@ -26,7 +28,7 @@ function roomSetting({ props, event, force }){
     if ((value && checkInput(value)) || !value){
         updateRoom(props, value, force);
         if (force){
-            props.dispatch({ type: 'LOGIN_SET_ROOM' });
+            props.dispatch(loginActions.setRoom());
         }
     }
 }

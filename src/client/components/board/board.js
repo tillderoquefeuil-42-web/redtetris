@@ -1,6 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 
+import * as loginActions from '../../actions/login';
+import * as boardActions from '../../actions/board';
+
 import { Container, Column, BoardWrapper, Score } from './styles.js';
 
 import { Button } from '../styles.js';
@@ -22,11 +25,11 @@ const SCORING = [0, 40, 100, 300, 1200];
 
 // MANAGE USER ACTIONS
 const backToRoom = (props) => {
-    props.dispatch({ type: 'LOGIN_RESTART', back_to_room:true });
+    props.dispatch(loginActions.restart(true));
 };
 
 const restartGame = (props) => {
-    props.dispatch({ type: 'LOGIN_RESTART' });
+    props.dispatch(loginActions.restart());
 };
 
 
@@ -283,7 +286,7 @@ const Board = (props) => {
         if (!props.blocks){
             setRestart(false);
             blocks = utils.initBlocks();
-            props.dispatch({ type: 'BOARD_UPDATE', blocks:blocks });
+            props.dispatch(boardActions.update({ blocks }));
         }
     });
 
@@ -312,8 +315,8 @@ const Board = (props) => {
             }
             if (change){
                 setCurrent(updateCurrent(_blocks, piece));
-                props.dispatch({ type: 'BOARD_OVER_LINE', over_line: player.overLine});
-                props.dispatch({ type: 'BOARD_UPDATE', blocks:_blocks });
+                props.dispatch(boardActions.overLine(player.overLine));
+                props.dispatch(boardActions.update({ blocks:_blocks }));
             }
         }
     });
@@ -356,7 +359,7 @@ const Board = (props) => {
 
             let score = updateScore(props.score, lines, _piece);
 
-            props.dispatch({ type: 'BOARD_UPDATE', blocks:_blocks, score:score });
+            props.dispatch(boardActions.update({ blocks:_blocks, score:score }));
 
             //GET NEXT PIECE
             _piece = getNextPiece(props.pieces, piece);
@@ -365,11 +368,11 @@ const Board = (props) => {
 
             if (lines > 0){
                 lines = (props.hardmode? lines : 1);
-                props.dispatch({ type: 'BOARD_REMOVE_LINE', lines:lines });
+                props.dispatch(boardActions.removeLine(lines));
             }
 
             if (pieceIsStuck(_blocks, _piece)){
-                props.dispatch({ type: 'BOARD_UPDATE', game_over:true });
+                props.dispatch(boardActions.update({ gameOver:true }));
             } else {
                 setCurrent(updateCurrent(_blocks, _piece));
                 if (props.hardmode && lines){
@@ -377,7 +380,7 @@ const Board = (props) => {
                 }
 
                 if (newPiecesNeeded(props.pieces, _piece)){
-                    props.dispatch({ type: 'BOARD_NEW_PIECES' });
+                    props.dispatch(boardActions.newPieces());
                 }
             }
 

@@ -1,7 +1,12 @@
 import io from 'socket.io-client';
 
-import { LOGIN_ACTIONS, getLoginStateCopy } from '../reducers/login';
-import { BOARD_ACTIONS, getBoardStateCopy } from '../reducers/board';
+import ActionTypes from '../constants/ActionTypes';
+
+const LOGIN_ACTIONS = ActionTypes.LOGIN;
+const BOARD_ACTIONS = ActionTypes.BOARD;
+
+import { getLoginStateCopy } from '../reducers/login';
+import { getBoardStateCopy } from '../reducers/board';
 
 const rootURL = 'http://0.0.0.0:3004';
 let socket = io(rootURL)
