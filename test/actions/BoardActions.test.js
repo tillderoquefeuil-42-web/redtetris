@@ -96,4 +96,43 @@ describe('Board Actions', function () {
         });
     });
 
+    //RESET
+    describe('#reset()', function () {
+        it('should return object for the resetAction', function(){
+            
+            const response = actions.reset();
+		    expect(response).to.eql({
+                type    : ActionTypes.BOARD.RESET
+            });
+        });
+    });
+
+    //NEXT PIECES
+    describe('#nextPieces()', function () {
+        it('should return object for the nextPiecesAction', function(){
+            let pieces = ['piece3', 'piece4'];
+            let index = 2;
+    
+            const response = actions.nextPieces(pieces, index);
+		    expect(response).to.eql({
+                type    : ActionTypes.BOARD.NEXT_PIECES,
+                pieces  : pieces,
+                index   : index
+            });
+        });
+    });
+
+    //GET UPDATE
+    describe('#getUpdate()', function () {
+        it('should return object for the getUpdateAction', function(){
+            let players = ['player1', 'player2'];
+    
+            const response = actions.getUpdate(players);
+		    expect(response).to.eql({
+                type    : ActionTypes.BOARD.GET_UPDATE,
+                players : players
+            });
+        });
+    });    
+
 });
