@@ -37,3 +37,28 @@ export function start() {
 export function restart(backToRoom) {
     return { type:ACTIONS.RESTART, back_to_room:backToRoom };
 }
+
+
+export function getId(id) {
+    return { type:ACTIONS.GET_ID, player_id:id };
+}
+
+export function getRooms(rooms) {
+    return { type:ACTIONS.GET_ROOMS, rooms };
+}
+
+export function newOwner() {
+    return { type:ACTIONS.NEW_OWNER };
+}
+
+export function getOwner(owner, started) {
+    return { type:ACTIONS.GET_OWNER, owner, started };
+}
+
+export function getStart() {
+    return { type:ACTIONS.GET_START };
+}
+
+export function getRestart(backToRoom) {
+    return { type:ACTIONS.GET_RESTART, back_to_room:backToRoom };
+}

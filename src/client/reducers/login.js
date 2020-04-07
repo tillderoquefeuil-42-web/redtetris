@@ -2,7 +2,7 @@ import ActionTypes from '../constants/ActionTypes';
 
 const LOGIN_ACTIONS = ActionTypes.LOGIN;
 
-const initialState = {
+export const initialState = {
     id              : null, 
     name            : "",
     name_set        : false,
