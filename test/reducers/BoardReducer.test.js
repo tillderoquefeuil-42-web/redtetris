@@ -1,9 +1,8 @@
 import { expect } from 'chai';
 
-import ActionTypes from '../../src/client/constants/ActionTypes';
 import * as actions from '../../src/client/actions/board';
 
-import reducer, { initialState, getBoardStateCopy } from '../../src/client/reducers/board';
+import reducer, { initialState } from '../../src/client/reducers/board';
 
 describe('Board Reducer', function () {
 

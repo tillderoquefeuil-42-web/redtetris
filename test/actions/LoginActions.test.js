@@ -154,4 +154,90 @@ describe('Login Actions', function () {
         });
     });
 
+    //GET ID
+    describe('#getId()', function () {
+        it('should return object for the getIdAction', function(){
+            let id = 123;
+
+            let response = actions.getId(id);
+            expect(response).to.eql({
+                type        : ActionTypes.LOGIN.GET_ID,
+                player_id   : id
+            });
+        });
+    });
+
+    //GET ROOMS
+    describe('#getRooms()', function () {
+        it('should return object for the getRoomsAction', function(){
+            let rooms = ['r1', 'r2', 'etc'];
+
+            let response = actions.getRooms(rooms);
+            expect(response).to.eql({
+                type    : ActionTypes.LOGIN.GET_ROOMS,
+                rooms   : rooms
+            });
+        });
+    });
+
+    //NEW OWNER
+    describe('#newOwner()', function () {
+        it('should return object for the newOwnerAction', function(){
+
+            let response = actions.newOwner();
+            expect(response).to.eql({
+                type    : ActionTypes.LOGIN.NEW_OWNER
+            });
+        });
+    });
+
+    //GET OWNER
+    describe('#getOwner()', function () {
+        it('should return object for the getOwnerAction', function(){
+            let owner = true;
+            let started = false;
+
+            let response = actions.getOwner(owner, started);
+            expect(response).to.eql({
+                type    : ActionTypes.LOGIN.GET_OWNER,
+                owner   : owner,
+                started : started
+            });
+        });
+    });
+
+    //GET START
+    describe('#getStart()', function () {
+        it('should return object for the getStartAction', function(){
+
+            let response = actions.getStart();
+            expect(response).to.eql({
+                type    : ActionTypes.LOGIN.GET_START
+            });
+        });
+    });
+
+    //GET RESTART
+    describe('#getRestart()', function () {
+        it('should return object for the getRestartAction with backToRoom = false', function(){
+            let backToRoom = false;
+
+            let response = actions.getRestart(backToRoom);
+            expect(response).to.eql({
+                type            : ActionTypes.LOGIN.GET_RESTART,
+                back_to_room    : backToRoom
+            });
+        });
+
+        it('should return object for the getRestartAction with backToRoom = true', function(){
+            let backToRoom = true;
+
+            let response = actions.getRestart(backToRoom);
+            expect(response).to.eql({
+                type            : ActionTypes.LOGIN.GET_RESTART,
+                back_to_room    : backToRoom
+            });
+        });
+    });
+
 });
