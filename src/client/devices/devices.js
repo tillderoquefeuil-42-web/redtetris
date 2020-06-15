@@ -34,6 +34,7 @@ export const devices = {
     mobileM : `(min-width: ${ size.mobileM.width }) and (min-height: ${ size.mobileM.height })`,
     mobileL : `(min-width: ${ size.mobileL.width }) and (min-height: ${ size.mobileL.height })`,
     tablet  : `(min-width: ${ size.tablet.width }) and (min-height: ${ size.tablet.height })`,
+    laplet  : `(min-width: ${ size.tablet.width }) and (min-height: ${ size.laptop.height })`,
     laptop  : `(min-width: ${ size.laptop.width }) and (min-height: ${ size.laptop.height })`,
     laptopL : `(min-width: ${ size.laptopL.width }) and (min-height: ${ size.laptopL.height })`,
     desktop : `(min-width: ${ size.desktop.width }) and (min-height: ${ size.desktop.height })`,

@@ -15,15 +15,15 @@ export const Column = styled.div`
     align-items: center;
     min-width: 120px;
 
-    @media ${devices.mobileS}, @media ${devices.mobileM}, @media ${devices.mobileL} {
+    @media ${devices.mobileS} {
         min-width: 220px;
     }
 
-    @media ${devices.tablet}, @media ${devices.laptop}, @media ${devices.laptopL} {
+    @media ${devices.laplet} {
         min-width: 320px;
     }
     
-    @media ${devices.desktop}, @media ${devices.desktopL} {
+    @media ${devices.desktop} {
         min-width: 620px;
     }
 `;
@@ -40,17 +40,17 @@ export const BoardWrapper = styled.div`
     border-radius: 10px;
     box-shadow: inset 0px 0px 50px -10px rgba(0,0,0,0.74);
 
-    @media ${devices.mobileS}, @media ${devices.mobileM}, @media ${devices.mobileL} {
+    @media ${devices.mobileS} {
         width: 200px;
         height: 400px;
     }
 
-    @media ${devices.tablet}, @media ${devices.laptop}, @media ${devices.laptopL} {
+    @media ${devices.laplet} {
         width: 300px;
         height: 600px;
     }
 
-    @media ${devices.desktop}, @media ${devices.desktopL} {
+    @media ${devices.desktop} {
         width: 600px;
         height: 1200px;
     }
@@ -63,17 +63,17 @@ export const NextPieceWrapper = styled.div`
     display: flex;
     flex-wrap: wrap;
 
-    @media ${devices.mobileS}, @media ${devices.mobileM}, @media ${devices.mobileL} {
+    @media ${devices.mobileS} {
         width: 200px;
         height: 80px;
     }
 
-    @media ${devices.tablet}, @media ${devices.laptop}, @media ${devices.laptopL} {
+    @media ${devices.laplet} {
         width: 300px;
         height: 120px;
     }
 
-    @media ${devices.desktop}, @media ${devices.desktopL} {
+    @media ${devices.desktop} {
         width: 600px;
         height: 240px;
     }
@@ -93,25 +93,25 @@ export const BoardCover = styled.div`
 `;
 
 export const Block = styled.div`
-    width: 9.8px;
-    height: 9.8px;
-    border: 0.1px solid ${props => props.demo? (props.plain? '#000' : 'transparent') : '#860000'};
+    width: 8px;
+    height: 8px;
+    border: 1px solid ${props => props.demo? (props.plain? '#000' : 'transparent') : '#860000'};
     background: ${props => props.plain === 2? '#860000' : (props.plain? '#c51b12' : 'none') };
 
-    @media ${devices.mobileS}, @media ${devices.mobileM}, @media ${devices.mobileL} {
-        border: 0.5px solid ${props => props.demo? (props.plain? '#000' : 'transparent') : '#860000'};
-        width: 19px;
-        height: 19px;
+    @media ${devices.mobileS} {
+        border: 1px solid ${props => props.demo? (props.plain? '#000' : 'transparent') : '#860000'};
+        width: 18px;
+        height: 18px;
     }
 
-    @media ${devices.tablet}, @media ${devices.laptop}, @media ${devices.laptopL} {
-        width: 29px;
-        height: 29px;
+    @media ${devices.laplet} {
+        width: 28px;
+        height: 28px;
     }
 
-    @media ${devices.desktop}, @media ${devices.desktopL} {
-        width: 59px;
-        height: 59px;
+    @media ${devices.desktop} { 
+        width: 58px;
+        height: 58px;
     }
 `;
 
@@ -150,17 +150,17 @@ export const PreviewWrapper = styled(BoardWrapper)`
     border-radius: 5px;
     box-shadow: none;
 
-    @media ${devices.mobileS}, @media ${devices.mobileM}, @media ${devices.mobileL} {
+    @media ${devices.mobileS} {
         width: 100px;
         height: 200px;
     }
 
-    @media ${devices.tablet}, @media ${devices.laptop}, @media ${devices.laptopL} {
+    @media ${devices.laplet} {
         width: 150px;
         height: 300px;
     }
 
-    @media ${devices.desktop}, @media ${devices.desktopL} {
+    @media ${devices.desktop} {
         width: 300px;
         height: 600px;
     }
@@ -172,18 +172,18 @@ export const PreviewBlock = styled.div`
     border: 0.1px solid ${props => props.plain? '#860000' : 'transparent'};
     background: ${props => (props.plain)? '#860000' : 'none'};
 
-    @media ${devices.mobileS}, @media ${devices.mobileM}, @media ${devices.mobileL} {
+    @media ${devices.mobileS} {
         border: 0.5px solid ${props => props.plain? '#860000' : 'transparent'};
         width: 9px;
         height: 9px;
     }
 
-    @media ${devices.tablet}, @media ${devices.laptop}, @media ${devices.laptopL} {
+    @media ${devices.laplet} {
         width: 14px;
         height: 14px;
     }
 
-    @media ${devices.desktop}, @media ${devices.desktopL} {
+    @media ${devices.desktop} {
         width: 29px;
         height: 29px;
     }
